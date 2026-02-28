@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soft Skills Flashcards — BEU 7th Sem</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500;1,700&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f0e8;
+  --ink: #1a1410;
+  --ink2: #3d3530;
+  --muted: #8a7f74;
+  --muted2: #b5ada4;
+  --card-front: #faf7f2;
+  --card-back: #1e1714;
+  --card-back-text: #f0ebe2;
+  --accent: #c0392b;
+  --accent2: #2c7a4b;
+  --accent3: #1a5276;
+  --gold: #c9952a;
+  --border: #d9cfc4;
+  --border-dark: #3d3530;
+  --shadow: 0 20px 60px rgba(26,20,16,0.15), 0 4px 16px rgba(26,20,16,0.1);
+  --shadow-hover: 0 30px 80px rgba(26,20,16,0.22), 0 8px 24px rgba(26,20,16,0.15);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Mulish', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: 0.6;
+}
+
+/* ===== LAYOUT ===== */
+.app { position: relative; z-index: 1; }
+
+/* ===== HEADER ===== */
+header {
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(245,240,232,0.9);
+  backdrop-filter: blur(8px);
+  position: sticky; top: 0; z-index: 100;
+}
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem; font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.logo span { color: var(--accent); font-style: italic; }
+.header-meta {
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--muted);
+}
+.header-right { display:flex; align-items:center; gap:1rem; }
+.kbd-hint {
+  font-size: 0.72rem; color: var(--muted);
+  display: flex; align-items: center; gap: 0.4rem;
+}
+kbd {
+  background: var(--border); border: 1px solid var(--muted2);
+  border-radius: 4px; padding: 0.15rem 0.4rem;
+  font-family: 'Mulish', sans-serif; font-size: 0.68rem;
+  color: var(--ink2); box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* ===== HERO STRIP ===== */
+.hero {
+  text-align: center;
+  padding: 3rem 2rem 2rem;
+  border-bottom: 1px solid var(--border);
+}
+.hero-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 0.6rem;
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 900; line-height: 1.05; color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+.hero-title em { font-style: italic; color: var(--accent); }
+.hero-sub { font-size: 0.9rem; color: var(--muted); font-weight: 400; margin-bottom: 1.8rem; }
+
+/* Progress strip */
+.progress-strip {
+  display: flex; align-items: center; justify-content: center; gap: 2rem;
+  flex-wrap: wrap;
+}
+.prog-item { text-align: center; }
+.prog-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem; font-weight: 700; color: var(--ink);
+  line-height: 1;
+}
+.prog-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-top: 0.2rem; }
+.prog-divider { width: 1px; height: 40px; background: var(--border); }
+
+/* ===== UNIT FILTER ===== */
+.filter-bar {
+  padding: 1.2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+}
+.filter-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-right: 0.3rem; }
+.filter-btn {
+  font-family: 'Mulish', sans-serif;
+  font-size: 0.78rem; font-weight: 600;
+  padding: 0.4rem 1rem; border-radius: 100px;
+  border: 1.5px solid var(--border);
+  background: transparent; color: var(--ink2); cursor: pointer;
+  transition: all 0.2s; letter-spacing: 0.02em;
+}
+.filter-btn:hover { border-color: var(--ink2); }
+.filter-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.filter-btn.u1.active { background: #c0392b; border-color: #c0392b; }
+.filter-btn.u2.active { background: #7b2d8b; border-color: #7b2d8b; }
+.filter-btn.u3.active { background: #c9952a; border-color: #c9952a; }
+.filter-btn.u4.active { background: #2c7a4b; border-color: #2c7a4b; }
+.filter-btn.u5.active { background: #1a5276; border-color: #1a5276; }
+.filter-btn.u6.active { background: #1a6b5a; border-color: #1a6b5a; }
+
+/* ===== MAIN STUDY AREA ===== */
+.study-area {
+  padding: 2.5rem 2rem 4rem;
+  max-width: 880px; margin: 0 auto;
+}
+
+/* Card navigation */
+.card-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.card-counter {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.85rem; font-style: italic; color: var(--muted);
+}
+.nav-btns { display: flex; gap: 0.5rem; }
+.nav-btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: transparent; cursor: pointer; color: var(--ink2);
+  font-size: 1rem; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; font-family: 'Mulish', sans-serif;
+}
+.nav-btn:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.shuffle-btn {
+  width: auto; border-radius: 100px; padding: 0 1rem;
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+}
+
+/* ===== FLASHCARD ===== */
+.card-scene {
+  perspective: 1200px;
+  width: 100%; cursor: pointer;
+  margin-bottom: 1.5rem;
+}
+.card-body {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 20px;
+}
+.card-body.flipped { transform: rotateY(180deg); }
+
+.card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* FRONT */
+.card-front {
+  background: var(--card-front);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 0;
+  min-height: 340px;
+  display: flex; flex-direction: column;
+  transition: box-shadow 0.3s;
+}
+.card-scene:hover .card-front { box-shadow: var(--shadow-hover); }
+
+.front-top {
+  padding: 1.5rem 2rem 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.front-unit-badge {
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 0.2em;
+  text-transform: uppercase; padding: 0.25rem 0.75rem;
+  border-radius: 100px; border: 1.5px solid currentColor;
+}
+.flip-hint {
+  font-size: 0.7rem; font-weight: 600; color: var(--muted);
+  display: flex; align-items: center; gap: 0.35rem;
+}
+.flip-icon { font-size: 0.9rem; animation: flipHint 2s ease-in-out infinite; }
+@keyframes flipHint { 0%,100%{transform:rotateY(0)} 50%{transform:rotateY(180deg)} }
+
+.front-content {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 3rem 3rem 2rem;
+  text-align: center;
+}
+.front-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 5rem; font-weight: 900;
+  line-height: 1; margin-bottom: 0.5rem;
+  opacity: 0.06; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  pointer-events: none; user-select: none;
+  color: var(--ink);
+}
+.front-topic {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 700; line-height: 1.2;
+  color: var(--ink); position: relative; z-index: 1;
+  margin-bottom: 0.75rem;
+}
+.front-subtitle {
+  font-size: 0.85rem; color: var(--muted); font-weight: 400;
+  position: relative; z-index: 1;
+  font-style: italic;
+}
+.front-bottom {
+  padding: 1rem 2rem;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.front-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.tag {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 0.2rem 0.5rem;
+  background: var(--border); border-radius: 4px; color: var(--muted);
+}
+.mastery-dots { display: flex; gap: 4px; }
+.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: transparent; transition: all 0.3s;
+}
+.dot.filled { background: var(--gold); border-color: var(--gold); }
+
+/* BACK */
+.card-back {
+  background: var(--card-back);
+  position: absolute; top: 0; left: 0; right: 0;
+  transform: rotateY(180deg);
+  min-height: 340px;
+  display: flex; flex-direction: column;
+}
+.back-top {
+  padding: 1.2rem 1.8rem 0.8rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.back-topic-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.9rem; font-style: italic; color: rgba(240,235,226,0.5);
+}
+.back-label {
+  font-size: 0.62rem; font-weight: 800; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--gold);
+}
+.back-points {
+  padding: 1.5rem 1.8rem 1.2rem;
+  flex: 1;
+  display: flex; flex-direction: column; gap: 0.7rem;
+}
+.point-row {
+  display: flex; gap: 1rem; align-items: flex-start;
+}
+.point-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; font-weight: 700; color: var(--gold);
+  min-width: 24px; line-height: 1.4;
+  opacity: 0.9;
+}
+.point-content { flex: 1; }
+.point-title {
+  font-size: 0.85rem; font-weight: 700; color: var(--card-back-text);
+  margin-bottom: 0.1rem; line-height: 1.3;
+}
+.point-desc {
+  font-size: 0.78rem; color: rgba(240,235,226,0.6);
+  line-height: 1.5; font-weight: 400;
+}
+.back-bottom {
+  padding: 0.8rem 1.8rem 1.2rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex; justify-content: flex-end; gap: 0.5rem;
+}
+.rate-btn {
+  font-family: 'Mulish', sans-serif;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+  padding: 0.4rem 0.9rem; border-radius: 100px; cursor: pointer;
+  transition: all 0.2s; border: 1.5px solid;
+}
+.rate-hard {
+  border-color: rgba(244,63,94,0.4); color: #f87171;
+  background: rgba(244,63,94,0.08);
+}
+.rate-hard:hover { background: rgba(244,63,94,0.2); }
+.rate-ok {
+  border-color: rgba(245,158,11,0.4); color: #fbbf24;
+  background: rgba(245,158,11,0.08);
+}
+.rate-ok:hover { background: rgba(245,158,11,0.2); }
+.rate-easy {
+  border-color: rgba(52,211,153,0.4); color: #6ee7b7;
+  background: rgba(52,211,153,0.08);
+}
+.rate-easy:hover { background: rgba(52,211,153,0.2); }
+
+/* ===== UNIT DIVIDER BAR ===== */
+.unit-divider {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.8rem; font-style: italic; color: var(--muted);
+  text-align: center; margin: 0.5rem 0 1.5rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.unit-divider::before, .unit-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ===== DECK PROGRESS ===== */
+.deck-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 0.5rem;
+}
+.deck-bar-wrap {
+  flex: 1; min-width: 200px;
+  height: 4px; background: var(--border); border-radius: 100px; overflow: hidden;
+}
+.deck-bar { height: 100%; border-radius: 100px; background: var(--ink); transition: width 0.4s; }
+.deck-info { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
+
+/* ===== REVIEW GRID (all cards overview) ===== */
+.grid-section {
+  border-top: 1px solid var(--border);
+  padding: 2.5rem 2rem 4rem;
+}
+.grid-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem; font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.grid-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 2rem; }
+.cards-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+.overview-card {
+  background: var(--card-front);
+  border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 1rem;
+  cursor: pointer; transition: all 0.2s;
+}
+.overview-card:hover { border-color: var(--ink2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,20,16,0.1); }
+.overview-card.seen { border-color: var(--gold); }
+.overview-card.mastered { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.ov-unit { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.3rem; opacity: 0.5; }
+.ov-title { font-family: 'Playfair Display', serif; font-size: 0.9rem; font-weight: 700; line-height: 1.3; }
+.ov-status { font-size: 0.65rem; font-weight: 600; margin-top: 0.4rem; }
+.status-new { color: var(--muted); }
+.status-seen { color: var(--gold); }
+.status-mastered { color: var(--accent2); }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--ink); color: var(--bg);
+  border-radius: 100px; padding: 0.6rem 1.4rem;
+  font-size: 0.82rem; font-weight: 600; z-index: 1000;
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  header { padding: 0.8rem 1rem; }
+  .filter-bar { padding: 0.8rem 1rem; }
+  .study-area { padding: 1.5rem 1rem 3rem; }
+  .front-content { padding: 2rem 1.5rem; }
+  .back-points { padding: 1rem 1.2rem; gap: 0.5rem; }
+  .back-top, .back-bottom { padding-left: 1.2rem; padding-right: 1.2rem; }
+  .grid-section { padding: 1.5rem 1rem 3rem; }
+  .kbd-hint { display: none; }
+  .progress-strip { gap: 1rem; }
+}
+
+/* Unit colors */
+.u1 { --uc: #c0392b; }
+.u2 { --uc: #7b2d8b; }
+.u3 { --uc: #c9952a; }
+.u4 { --uc: #2c7a4b; }
+.u5 { --uc: #1a5276; }
+.u6 { --uc: #1a6b5a; }
+
+.front-unit-badge { color: var(--uc, var(--ink)); border-color: var(--uc, var(--ink)); }
+.back-topic-label.u1,.ov-unit.u1 { color: #c0392b; }
+.back-topic-label.u2,.ov-unit.u2 { color: #7b2d8b; }
+.back-topic-label.u3,.ov-unit.u3 { color: #c9952a; }
+.back-topic-label.u4,.ov-unit.u4 { color: #2c7a4b; }
+.back-topic-label.u5,.ov-unit.u5 { color: #1a5276; }
+.back-topic-label.u6,.ov-unit.u6 { color: #1a6b5a; }
+
+/* Animate in */
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.card-scene { animation: cardEnter 0.4s ease both; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Flash<span>Cards</span></div>
+  <div class="header-meta">BEU · Soft Skills · Code 100713</div>
+  <div class="header-right">
+    <div class="kbd-hint">
+      <kbd>←</kbd><kbd>→</kbd> Navigate &nbsp;
+      <kbd>Space</kbd> Flip
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">7-Point Revision System</div>
+  <h1 class="hero-title">Master Every Topic<br><em>One Card at a Time</em></h1>
+  <p class="hero-sub">Each card gives you 7 exam-ready points with short descriptions — perfect for 7-mark answers</p>
+  <div class="progress-strip">
+    <div class="prog-item"><div class="prog-num" id="seen-count">0</div><div class="prog-label">Seen</div></div>
+    <div class="prog-divider"></div>
+    <div class="prog-item"><div class="prog-num" id="mastered-count">0</div><div class="prog-label">Mastered</div></div>
+    <div class="prog-divider"></div>
+    <div class="prog-item"><div class="prog-num" id="total-count">0</div><div class="prog-label">Total Cards</div></div>
+    <div class="prog-divider"></div>
+    <div class="prog-item"><div class="prog-num" id="pct-done">0%</div><div class="prog-label">Progress</div></div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <span class="filter-label">Filter:</span>
+  <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">All Units</button>
+  <button class="filter-btn u1" data-filter="1" onclick="setFilter('1',this)">Unit 1 · Self</button>
+  <button class="filter-btn u2" data-filter="2" onclick="setFilter('2',this)">Unit 2 · Creativity</button>
+  <button class="filter-btn u3" data-filter="3" onclick="setFilter('3',this)">Unit 3 · Attitude</button>
+  <button class="filter-btn u4" data-filter="4" onclick="setFilter('4',this)">Unit 4 · Goals</button>
+  <button class="filter-btn u5" data-filter="5" onclick="setFilter('5',this)">Unit 5 · Time</button>
+  <button class="filter-btn u6" data-filter="6" onclick="setFilter('6',this)">Unit 6 · Interpersonal</button>
+</div>
+
+<!-- STUDY AREA -->
+<div class="study-area">
+  <div class="card-nav">
+    <div class="card-counter" id="card-counter">Card 1 of 54</div>
+    <div class="nav-btns">
+      <button class="nav-btn" id="prev-btn" onclick="prevCard()" title="Previous (←)">←</button>
+      <button class="nav-btn shuffle-btn" onclick="shuffleDeck()" title="Shuffle">⇄ Shuffle</button>
+      <button class="nav-btn" id="next-btn" onclick="nextCard()" title="Next (→)">→</button>
+    </div>
+  </div>
+
+  <div class="card-scene" id="card-scene" onclick="flipCard()">
+    <div class="card-body" id="card-body">
+      <div class="card-face card-front" id="card-front">
+        <!-- dynamically filled -->
+      </div>
+      <div class="card-face card-back" id="card-back">
+        <!-- dynamically filled -->
+      </div>
+    </div>
+  </div>
+
+  <div class="deck-footer">
+    <div class="deck-info" id="deck-info">0 of 54 seen</div>
+    <div class="deck-bar-wrap">
+      <div class="deck-bar" id="deck-bar" style="width:0%"></div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERVIEW GRID -->
+<div class="grid-section">
+  <div style="max-width:880px;margin:0 auto">
+    <div class="grid-title">All Flashcards</div>
+    <div class="grid-sub">Click any card to jump to it. Gold border = seen, dark = mastered.</div>
+    <div class="cards-overview" id="overview-grid"></div>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// =================== FLASHCARD DATA ===================
+const CARDS = [
+  // ===== UNIT 1 =====
+  { unit:1, topic:"SWOT Analysis", subtitle:"Strategic self-assessment framework", tags:["Self-Discovery","BEU Favourite"],
+    points:[
+      {t:"Strengths",d:"Internal positive attributes you possess — skills, talents, resources that give you an advantage."},
+      {t:"Weaknesses",d:"Internal limitations or areas needing improvement — skill gaps, bad habits, resource deficits."},
+      {t:"Opportunities",d:"External positive factors you can exploit — trends, market gaps, new technologies or connections."},
+      {t:"Threats",d:"External negative factors that could hinder progress — competition, economic shifts, adversarial conditions."},
+      {t:"Internal vs External",d:"Strengths & Weaknesses are internal (within you). Opportunities & Threats are external (environment)."},
+      {t:"Purpose",d:"Provides a structured way to evaluate your current position and make informed strategic decisions."},
+      {t:"Action Step",d:"After SWOT, create strategies: use Strengths to grab Opportunities, and minimize Weaknesses/Threats."},
+    ]},
+  { unit:1, topic:"Self-Esteem", subtitle:"Your overall sense of self-worth", tags:["Self-Discovery","Important"],
+    points:[
+      {t:"Definition",d:"Self-esteem is the subjective evaluation of your own worth — how much you value and respect yourself."},
+      {t:"High Self-Esteem",d:"Characterized by confidence, resilience, ability to accept criticism constructively and take healthy risks."},
+      {t:"Low Self-Esteem",d:"Leads to self-doubt, fear of failure, avoidance of challenges and over-reliance on others' approval."},
+      {t:"How It Develops",d:"Shaped by childhood experiences, parental feedback, peer interactions, achievements and cultural messages."},
+      {t:"Improving Self-Esteem",d:"Celebrate small wins, challenge negative self-talk, set achievable goals, surround yourself with supportive people."},
+      {t:"Impact on Work",d:"High self-esteem professionals handle criticism better, take initiative, communicate assertively and lead effectively."},
+      {t:"Self-Esteem vs Arrogance",d:"Healthy self-esteem acknowledges imperfections; arrogance denies them. True self-worth doesn't need external validation."},
+    ]},
+  { unit:1, topic:"Self-Confidence", subtitle:"Belief in your own abilities", tags:["Self-Discovery"],
+    points:[
+      {t:"Definition",d:"Self-confidence is trust in your own abilities, judgment, and capacity to handle specific situations or tasks."},
+      {t:"Vs Self-Esteem",d:"Self-confidence is task-specific (I can do this); self-esteem is global (I am worthy). Both are important."},
+      {t:"Building It",d:"Set and achieve small goals — each success builds a track record your brain uses as evidence of capability."},
+      {t:"Body Language Role",d:"Confident posture, eye contact and open gestures actually signal confidence to others AND reinforce it internally."},
+      {t:"Visualization",d:"Mentally rehearsing success activates the same neural pathways as actual practice, boosting real performance confidence."},
+      {t:"Positive Self-Talk",d:"Replace 'I can't' with 'I'll try my best' — internal dialogue directly shapes confidence and behavior."},
+      {t:"Competence Loop",d:"Confidence → Action → Competence → More confidence. The cycle is started by taking action despite doubt."},
+    ]},
+  { unit:1, topic:"Self-Discovery: Who Am I?", subtitle:"Understanding your core identity", tags:["Self-Discovery"],
+    points:[
+      {t:"Purpose",d:"The 'Who Am I' exercise helps clarify your values, beliefs, personality traits, and life purpose."},
+      {t:"Values Identification",d:"Discover what truly matters to you — integrity, family, achievement, creativity — these guide all decisions."},
+      {t:"Personality Traits",d:"Examine consistent patterns in your behavior: introversion/extroversion, openness, conscientiousness, emotional stability."},
+      {t:"Strengths Mapping",d:"Identify natural talents and cultivated skills — what activities make you feel energized and in 'flow'?"},
+      {t:"Belief Systems",d:"Examine your assumptions about life, work, and yourself — limiting beliefs can block growth; empowering ones drive it."},
+      {t:"Life Experiences",d:"Your history shapes you — recognizing formative events helps you understand motivations and behavioural patterns."},
+      {t:"Action Outcome",d:"Self-discovery leads to better career choices, relationships, and personal growth because decisions align with your true self."},
+    ]},
+  { unit:1, topic:"Importance of Self-Confidence", subtitle:"Why it matters at work and life", tags:["Self-Discovery","BEU Favourite"],
+    points:[
+      {t:"Performance",d:"Confident people set higher goals, persist longer, and recover faster from setbacks — directly improving results."},
+      {t:"Communication",d:"Self-confidence enables clear, assertive communication — you speak up in meetings and express your views respectfully."},
+      {t:"Leadership",d:"Confidence inspires trust — teams look to leaders who appear certain and decisive even in uncertainty."},
+      {t:"Risk-Taking",d:"Confident individuals embrace calculated risks and new opportunities rather than playing it safe and stagnating."},
+      {t:"Resilience",d:"Confidence acts as a buffer against failure — setbacks are viewed as learning moments rather than confirmations of inadequacy."},
+      {t:"Career Growth",d:"Confident professionals are more likely to pursue promotions, negotiate salaries, and take on high-visibility projects."},
+      {t:"Social Relationships",d:"Confidence enables authentic, assertive interactions — you can maintain boundaries and build genuine connections."},
+    ]},
+
+  // ===== UNIT 2 =====
+  { unit:2, topic:"Lateral Thinking", subtitle:"Indirect and creative problem-solving", tags:["Creativity","BEU Favourite"],
+    points:[
+      {t:"Definition",d:"Coined by Edward de Bono (1967) — approaching problems from unexpected angles instead of the most obvious path."},
+      {t:"Vs Vertical Thinking",d:"Vertical thinking is logical and sequential. Lateral thinking makes jumps, challenges assumptions, and reframes problems."},
+      {t:"Techniques",d:"Random word association, provocation (what if?), reversing the problem, challenging assumptions, and analogical thinking."},
+      {t:"Real-Life Example",d:"Dyson inventor used lateral thinking to create a bagless vacuum cleaner by reversing the typical filter design entirely."},
+      {t:"In Teams",d:"Encourages diverse perspectives — lateral thinkers ask 'why not?' and find solutions competitors haven't considered."},
+      {t:"Six Thinking Hats",d:"De Bono's related tool uses colored hats (white=facts, red=emotions, black=caution, yellow=optimism, green=creative, blue=process)."},
+      {t:"Exam Relevance",d:"Creative problem-solving in competitive environments: gives teams a unique edge by producing non-obvious, breakthrough solutions."},
+    ]},
+  { unit:2, topic:"Out-of-the-Box Thinking", subtitle:"Unconventional approaches to problems", tags:["Creativity","BEU Favourite"],
+    points:[
+      {t:"Origin",d:"The phrase comes from the Nine Dots Puzzle — connecting 9 dots with 4 lines requires going beyond the implied square."},
+      {t:"Core Idea",d:"Challenging self-imposed constraints and assumptions that limit conventional thinking to find unconventional solutions."},
+      {t:"Brainstorming",d:"Generate many ideas freely without judgment first — quantity over quality initially, then evaluate. No idea is too wild."},
+      {t:"SCAMPER",d:"Substitute, Combine, Adapt, Modify, Put to other uses, Eliminate, Rearrange — a systematic creative thinking framework."},
+      {t:"Mind Mapping",d:"Visual tool radiating from a central idea — helps make unexpected connections and explore problems from all angles."},
+      {t:"Barriers",d:"Fear of ridicule, fixed mindset, past experience bias, and organizational culture can all block creative thinking."},
+      {t:"Competitive Advantage",d:"Teams using out-of-box thinking produce unique solutions, faster innovation, and stronger market differentiation."},
+    ]},
+  { unit:2, topic:"Creativity in the Workplace", subtitle:"Generating value through imagination", tags:["Creativity"],
+    points:[
+      {t:"Definition",d:"Workplace creativity is applying imagination to develop original ideas or solutions that create real value."},
+      {t:"Innovation Link",d:"Creativity generates ideas; innovation implements them. You need both — ideas without execution stay theoretical."},
+      {t:"Growth Mindset",d:"Belief that abilities can grow through effort — essential foundation for creative risk-taking and learning from failures."},
+      {t:"Psychological Safety",d:"Teams need an environment where people aren't afraid of judgment — safety is the #1 enabler of team creativity."},
+      {t:"Curiosity",d:"Asking 'what if' and 'why not' drives exploration beyond the obvious — curiosity is the engine of creativity."},
+      {t:"Incubation",d:"Stepping away from a problem allows subconscious processing — many insights emerge after rest, not during intense focus."},
+      {t:"Illumination",d:"The 'Aha!' moment (Wallas's model) — when subconscious connections surface as sudden insight after preparation and incubation."},
+    ]},
+  { unit:2, topic:"Divergent vs Convergent Thinking", subtitle:"Two modes of creative cognition", tags:["Creativity"],
+    points:[
+      {t:"Divergent Thinking",d:"Generating many possible solutions, ideas, or approaches — expansive, non-linear, associated with creativity."},
+      {t:"Convergent Thinking",d:"Finding the single best solution through logical analysis — focused, analytical, associated with problem-solving."},
+      {t:"Both Are Needed",d:"Effective thinking uses both: diverge to generate options, converge to select the best one. Neither alone is sufficient."},
+      {t:"Brainstorming Phase",d:"Use divergent thinking in brainstorming — suspend judgment, encourage wild ideas, maximize quantity of options."},
+      {t:"Evaluation Phase",d:"Switch to convergent thinking to analyze options against criteria, constraints, and feasibility."},
+      {t:"Education Impact",d:"Most schooling emphasizes convergent thinking (one right answer) — developing divergent thinking requires deliberate practice."},
+      {t:"Measurement",d:"Divergent thinking is measured by fluency (quantity), flexibility (variety), originality (novelty), and elaboration (detail)."},
+    ]},
+
+  // ===== UNIT 3 =====
+  { unit:3, topic:"Motivation: Key Concepts", subtitle:"Drives behind human behavior", tags:["Motivation","BEU Favourite"],
+    points:[
+      {t:"Definition",d:"Motivation is the internal process that initiates, guides, and sustains goal-oriented behavior and effort."},
+      {t:"Intrinsic",d:"Driven by internal rewards — inherent interest, curiosity, personal satisfaction, and sense of purpose in the activity."},
+      {t:"Extrinsic",d:"Driven by external rewards — salary, grades, praise, awards, or avoiding punishment. Effective short-term but less sustainable."},
+      {t:"Self-Talk",d:"Internal dialogue shapes motivation — positive self-talk ('I can handle this') activates effort; negative undermines it."},
+      {t:"Goal Clarity",d:"Clear, specific goals channel motivation effectively — vague goals produce vague effort with unclear results."},
+      {t:"Factors",d:"Recognition, meaningful work, growth opportunities, good relationships, and autonomy are universal motivational factors."},
+      {t:"For Managers",d:"Effective managers understand individual motivators — they personalize recognition, provide growth paths, and foster autonomy."},
+    ]},
+  { unit:3, topic:"Maslow's Hierarchy of Needs", subtitle:"The five levels of human motivation", tags:["Motivation","BEU Favourite"],
+    points:[
+      {t:"Level 1: Physiological",d:"Most basic survival needs — food, water, shelter, sleep, warmth. Must be met before higher needs motivate."},
+      {t:"Level 2: Safety",d:"Security, stability, freedom from fear — job security, health insurance, safe environment, financial safety."},
+      {t:"Level 3: Love & Belonging",d:"Social needs — friendship, intimacy, family, belonging to groups, acceptance from colleagues and community."},
+      {t:"Level 4: Esteem",d:"Two types: self-esteem (confidence, achievement, mastery) and esteem from others (recognition, status, respect)."},
+      {t:"Level 5: Self-Actualization",d:"Realizing full potential — creativity, problem-solving, authenticity, peak experiences. The highest human aspiration."},
+      {t:"Hierarchical Principle",d:"Lower needs must be substantially met before higher-level needs become primary motivators for behavior."},
+      {t:"Workplace Application",d:"Managers should identify employees' current need level and provide accordingly — don't offer prestige when pay is inadequate."},
+    ]},
+  { unit:3, topic:"Attitude: Components & Influence", subtitle:"Your learned response to the world", tags:["Attitude","BEU Favourite"],
+    points:[
+      {t:"Cognitive Component",d:"The thoughts and beliefs you hold about something — 'I believe hard work leads to success.'"},
+      {t:"Affective Component",d:"The emotional/feeling dimension — how something makes you feel: like/dislike, love/hate, comfort/discomfort."},
+      {t:"Behavioral Component",d:"The action tendency — how you intend to behave or actually behave toward the object/person/situation."},
+      {t:"Influencing Factors",d:"Family upbringing, cultural background, past experiences, education, peer groups, and media all shape attitude."},
+      {t:"Positive Attitude Impact",d:"Better performance, stronger relationships, greater resilience, higher creativity, and improved mental health."},
+      {t:"Changing Attitudes",d:"Difficult because deep beliefs resist change — requires new experiences, cognitive dissonance, and sustained effort."},
+      {t:"Workplace Etiquette",d:"Professional behavior norms: punctuality, respectful communication, confidentiality, meeting commitments, and appropriate tone."},
+    ]},
+  { unit:3, topic:"Herzberg's Two-Factor Theory", subtitle:"What satisfies vs. dissatisfies at work", tags:["Motivation"],
+    points:[
+      {t:"Two Factors",d:"Herzberg identified Hygiene Factors (prevent dissatisfaction) and Motivators (create satisfaction) as distinct categories."},
+      {t:"Hygiene Factors",d:"Salary, job security, working conditions, company policies, and supervision — their absence causes dissatisfaction."},
+      {t:"Motivators",d:"Achievement, recognition, interesting work, responsibility, advancement — their presence actively motivates and satisfies."},
+      {t:"Key Insight",d:"Fixing hygiene factors removes dissatisfaction but doesn't motivate. Motivators are needed to actually engage people."},
+      {t:"Application",d:"Managers must first ensure hygiene factors are adequate, then focus on motivators like meaningful work and recognition."},
+      {t:"Vs Maslow",d:"Herzberg's hygiene ≈ Maslow's lower needs; motivators ≈ higher needs. Both emphasize meaning and growth at top."},
+      {t:"Criticism",d:"The theory is based on professional satisfaction surveys; it may not apply equally across cultures or job types."},
+    ]},
+  { unit:3, topic:"Professional Etiquette", subtitle:"Behavioral norms in professional settings", tags:["Attitude"],
+    points:[
+      {t:"Punctuality",d:"Arriving on time shows respect for others' time — lateness signals that you value your own time above others'."},
+      {t:"Communication",d:"Use respectful, clear, professional language — no offensive humor, gossip, or overly casual tone with clients."},
+      {t:"Meeting Behavior",d:"Come prepared, listen actively, don't interrupt, stay on topic, and follow up on commitments made."},
+      {t:"Email Etiquette",d:"Clear subject lines, professional tone, appropriate Reply All use, timely responses, and proofreading before sending."},
+      {t:"Respect for Space",d:"Knock before entering, maintain appropriate personal space, keep shared spaces tidy, minimize disruptive noise."},
+      {t:"Confidentiality",d:"Respect sensitive information — don't share colleagues' personal matters, client data, or internal discussions externally."},
+      {t:"Digital Etiquette",d:"No phones during meetings, don't check messages while someone speaks, be mindful of video call backgrounds."},
+    ]},
+
+  // ===== UNIT 4 =====
+  { unit:4, topic:"SMART Goals Framework", subtitle:"Structured goal-setting methodology", tags:["Goal Setting","BEU Favourite"],
+    points:[
+      {t:"Specific",d:"Clearly defined — answers What, Who, Where, When, Why. Vague goals produce vague effort and vague results."},
+      {t:"Measurable",d:"Concrete criteria to track progress — numbers, percentages, milestones. You know exactly when it's achieved."},
+      {t:"Achievable",d:"Challenging but realistic given your current skills, time, and resources. Impossible goals demotivate."},
+      {t:"Relevant",d:"The goal matters to you and aligns with your larger objectives and values — ensures intrinsic motivation."},
+      {t:"Time-bound",d:"Has a clear deadline or timeframe — creates urgency, prevents procrastination, and allows progress tracking."},
+      {t:"Example",d:"'I will study 2 chapters of Soft Skills daily for 14 days starting Monday' — specific, measurable, achievable, relevant, timed."},
+      {t:"Benefit",d:"SMART goals direct attention, mobilize effort, encourage persistence, and motivate strategy development for achievement."},
+    ]},
+  { unit:4, topic:"Short-Term vs Long-Term Goals", subtitle:"Planning across different time horizons", tags:["Goal Setting"],
+    points:[
+      {t:"Short-Term Goals",d:"Achievable within days to 1 year — provide immediate direction, quick wins, and build momentum toward bigger goals."},
+      {t:"Long-Term Goals",d:"Span 1 to 5+ years — define major life achievements requiring sustained planning, effort, and multiple milestones."},
+      {t:"Lifetime Goals",d:"Overarching life aspirations — your legacy, ultimate purpose, and the complete vision of what you want your life to mean."},
+      {t:"Milestone Strategy",d:"Break long-term goals into short-term milestones — each milestone is a mini-goal on the path to the larger achievement."},
+      {t:"Alignment",d:"Short-term goals should ladder up to long-term goals — daily actions must connect to the long-term vision."},
+      {t:"Review Frequency",d:"Short-term goals: weekly review. Long-term goals: monthly/quarterly. Lifetime goals: annual deep reflection."},
+      {t:"Flexibility",d:"Goals should be firm in direction but flexible in method — life changes, so adjust tactics while keeping the vision."},
+    ]},
+  { unit:4, topic:"Blueprint for Success", subtitle:"Strategic action planning", tags:["Goal Setting"],
+    points:[
+      {t:"Concept",d:"A Blueprint for Success is a detailed action plan — a step-by-step roadmap mapping the exact path from current state to goal."},
+      {t:"Vision Statement",d:"Articulate your desired future clearly — the inspiring North Star that gives direction to all goal-setting."},
+      {t:"Gap Analysis",d:"Identify the difference between where you are now and where you want to be — the gap defines what must change."},
+      {t:"Action Steps",d:"Break the journey into specific, sequenced actions — who does what, by when, using what resources."},
+      {t:"Milestones",d:"Checkpoints that confirm you're on track — celebrate each milestone to maintain motivation on long journeys."},
+      {t:"Resource Planning",d:"Identify required skills, time, money, and people needed — proactively securing resources prevents stalling."},
+      {t:"Contingency",d:"Plan for obstacles — 'If X happens, I will do Y.' Anticipating challenges prevents them from becoming fatal setbacks."},
+    ]},
+  { unit:4, topic:"Goal Setting Importance", subtitle:"Why goals drive performance", tags:["Goal Setting"],
+    points:[
+      {t:"Direction",d:"Goals focus attention and energy — without them, effort disperses randomly and meaningful progress rarely happens."},
+      {t:"Motivation",d:"Goals create purpose — working toward something meaningful activates intrinsic motivation far stronger than just following instructions."},
+      {t:"Measurement",d:"Goals provide a standard — you can objectively assess whether performance is adequate or improvement is needed."},
+      {t:"Self-Discipline",d:"Commitment to a goal develops the habit of prioritizing long-term rewards over short-term comfort."},
+      {t:"Self-Efficacy",d:"Achieving goals builds belief in your own capability — each success raises the bar of what you believe possible."},
+      {t:"Accountability",d:"Written, shared goals create social accountability — this significantly increases follow-through compared to private intentions."},
+      {t:"Career Impact",d:"Goal-oriented professionals are promoted faster, earn more, report higher satisfaction, and experience less workplace anxiety."},
+    ]},
+
+  // ===== UNIT 5 =====
+  { unit:5, topic:"Time Management Fundamentals", subtitle:"Control how you spend your most finite resource", tags:["Time Mgmt","BEU Favourite"],
+    points:[
+      {t:"Definition",d:"Planning and exercising conscious control over how time is spent on activities to increase effectiveness and productivity."},
+      {t:"Value of Time",d:"Time is uniquely finite — unlike money, lost time cannot be recovered. How you use it determines your outcomes."},
+      {t:"Prioritization",d:"The core skill — identifying which tasks have the highest impact and deliberately doing those first."},
+      {t:"Planning Tools",d:"To-do lists, weekly planners, time-blocking, and calendar apps all help structure and protect productive time."},
+      {t:"Parkinson's Law",d:"Work expands to fill the time allocated — set tighter deadlines to prevent tasks from growing unnecessarily."},
+      {t:"80/20 Principle",d:"20% of your activities produce 80% of your results — identify and focus on that critical 20% first."},
+      {t:"Benefits",d:"Reduced stress, better work-life balance, higher achievement, increased confidence and sense of control over life."},
+    ]},
+  { unit:5, topic:"Eisenhower Matrix", subtitle:"Urgency vs Importance prioritization", tags:["Time Mgmt"],
+    points:[
+      {t:"Quadrant 1: Do",d:"Urgent AND Important — crises, deadlines, emergencies. Do these immediately but work to minimize them."},
+      {t:"Quadrant 2: Schedule",d:"Important but NOT Urgent — planning, skill development, relationships, prevention. This quadrant drives long-term success."},
+      {t:"Quadrant 3: Delegate",d:"Urgent but NOT Important — interruptions, some emails, certain meetings. Delegate when possible."},
+      {t:"Quadrant 4: Delete",d:"Neither Urgent nor Important — time-wasters, trivial tasks, excessive social media. Eliminate ruthlessly."},
+      {t:"Key Insight",d:"Most people live in Q1 (firefighting). Effective people invest in Q2 to prevent Q1 crises from arising."},
+      {t:"Implementation",d:"Before each task, ask: Is this urgent? Is this important? Then assign it to the correct quadrant."},
+      {t:"Named After",d:"President Eisenhower who said: 'What is important is seldom urgent and what is urgent is seldom important.'"},
+    ]},
+  { unit:5, topic:"Overcoming Procrastination", subtitle:"Breaking the delay cycle", tags:["Time Mgmt"],
+    points:[
+      {t:"Causes",d:"Fear of failure, perfectionism, task feeling overwhelming, low intrinsic motivation, and decision fatigue all cause procrastination."},
+      {t:"2-Minute Rule",d:"If a task takes less than 2 minutes, do it immediately — removes tiny tasks that pile up and drain mental energy."},
+      {t:"Task Chunking",d:"Break overwhelming tasks into tiny first steps — the activation energy for starting tiny tasks is much lower."},
+      {t:"Pomodoro Technique",d:"25 minutes focused work + 5-minute break, repeated. Structured intervals make daunting tasks feel manageable."},
+      {t:"Environment Design",d:"Remove distractions from your environment — phone in another room, website blockers, a dedicated workspace."},
+      {t:"Implementation Intention",d:"'When [situation], I will [behavior]' — pre-deciding triggers and responses dramatically improves follow-through."},
+      {t:"Self-Compassion",d:"Harsh self-criticism after procrastinating makes it worse. Forgive yourself and refocus — guilt is a procrastination trap."},
+    ]},
+  { unit:5, topic:"Diagnosing Poor Time Management", subtitle:"Identifying and fixing time leaks", tags:["Time Mgmt"],
+    points:[
+      {t:"Time Audit",d:"Track every activity for 1-2 weeks to see exactly where time goes — the data often reveals surprising time drains."},
+      {t:"Common Time Wasters",d:"Unnecessary meetings, excessive email checking, social media, unclear tasks, and saying yes to everything."},
+      {t:"Symptoms",d:"Chronic rushing, missed deadlines, constant overwhelm, inability to start tasks, and feeling always busy but never productive."},
+      {t:"Unclear Priorities",d:"If everything feels urgent, nothing is — the root cause is often absence of clear goals to filter tasks against."},
+      {t:"Multitasking Myth",d:"Multitasking reduces quality and increases errors — the brain doesn't truly multitask, it rapidly switches, wasting energy."},
+      {t:"Delegation Failure",d:"Trying to do everything yourself is a time management failure — delegating appropriate tasks frees you for high-value work."},
+      {t:"Solution",d:"Set clear daily priorities the night before, batch similar tasks, create focused work blocks, and review your week every Sunday."},
+    ]},
+  { unit:5, topic:"Weekly Planner & To-Do List", subtitle:"Practical daily organization tools", tags:["Time Mgmt"],
+    points:[
+      {t:"Weekly Planner Purpose",d:"Distributes work across the week, prevents Monday overload, ensures consistent daily progress toward goals."},
+      {t:"To-Do List",d:"Externalizes tasks from mental memory, allowing prioritization, tracking, and the motivational satisfaction of completion."},
+      {t:"Daily MIT",d:"Identify 1-3 Most Important Tasks each day — complete these before anything else for guaranteed daily progress."},
+      {t:"Time Blocking",d:"Allocate specific calendar slots for specific work types — protects deep work time from meetings and interruptions."},
+      {t:"Evening Review",d:"Spend 5 minutes each evening reviewing what was done and preparing tomorrow's priorities — reduces morning decision fatigue."},
+      {t:"Weekly Review",d:"Every Sunday, review the past week's progress, celebrate wins, adjust plans, and set the coming week's priorities."},
+      {t:"Digital vs Paper",d:"Both work — what matters is consistent use. Digital (apps) enable reminders; paper (journals) aids memory encoding."},
+    ]},
+
+  // ===== UNIT 6 =====
+  { unit:6, topic:"Interpersonal Skills Overview", subtitle:"The art of human interaction", tags:["Interpersonal","BEU Favourite"],
+    points:[
+      {t:"Definition",d:"Interpersonal skills are behaviors and communication strategies used to interact effectively with other people."},
+      {t:"Active Listening",d:"Fully concentrating on the speaker, understanding their complete message, noting non-verbal cues, responding thoughtfully."},
+      {t:"Empathy",d:"Understanding and sharing others' feelings and perspectives — the foundation of trust, collaboration, and conflict resolution."},
+      {t:"Assertiveness",d:"Clearly expressing your needs and views while fully respecting others' rights — the balanced middle path in communication."},
+      {t:"Conflict Resolution",d:"Working through disagreements constructively to reach solutions that work for all parties while preserving relationships."},
+      {t:"Feedback Skills",d:"Giving specific, constructive, solution-focused feedback — and receiving criticism gracefully with openness to growth."},
+      {t:"Why Critical",d:"Technical skills get you hired; interpersonal skills determine how far you rise. They determine culture, teams, and leadership."},
+    ]},
+  { unit:6, topic:"Verbal vs Non-Verbal Communication", subtitle:"The full spectrum of human communication", tags:["Communication","BEU Favourite"],
+    points:[
+      {t:"Verbal Communication",d:"Uses spoken or written words and language — content, word choice, vocabulary, tone, pace, and clarity."},
+      {t:"Non-Verbal Communication",d:"Body language, facial expressions, gestures, posture, eye contact, proximity, touch, and silence."},
+      {t:"7-38-55 Rule",d:"Mehrabian's finding: 7% words, 38% tone/voice, 55% body language in conveying feelings — non-verbal dominates."},
+      {t:"Consistency Matters",d:"When verbal and non-verbal messages contradict, people trust the non-verbal — 'actions speak louder than words.'"},
+      {t:"Eye Contact",d:"Appropriate eye contact signals confidence, honesty, and engagement. Avoiding it suggests discomfort or dishonesty."},
+      {t:"Tone of Voice",d:"The same words can convey different meanings depending on tone — friendly, sarcastic, urgent, or indifferent."},
+      {t:"Written Communication",d:"Email, reports, messages — permanent, thoughtful, spans distance; requires clarity since tone can be misread."},
+    ]},
+  { unit:6, topic:"Emotional Intelligence (EI)", subtitle:"Managing emotions for professional success", tags:["EI","BEU Favourite"],
+    points:[
+      {t:"Definition",d:"Coined by Daniel Goleman — the ability to identify, understand, manage, and effectively use emotions in yourself and others."},
+      {t:"Self-Awareness",d:"Knowing your own emotions, their triggers, and how they affect your thoughts and behavior — the foundation of EI."},
+      {t:"Self-Regulation",d:"Managing disruptive emotions and impulses — think before acting, stay calm under pressure, adapt to change."},
+      {t:"Motivation",d:"Internal drive to achieve for its own sake — high EI individuals maintain optimism and commitment despite obstacles."},
+      {t:"Empathy",d:"Sensing others' emotions and understanding their perspective — enables better teamwork, leadership, and conflict resolution."},
+      {t:"Social Skills",d:"Managing relationships, communicating clearly, influencing, inspiring, and building networks and collaborative teams."},
+      {t:"Workplace Impact",d:"High EI predicts leadership effectiveness, team performance, and job satisfaction more reliably than IQ alone."},
+    ]},
+  { unit:6, topic:"Conflict Resolution Strategies", subtitle:"Turning disputes into solutions", tags:["Interpersonal","BEU Favourite"],
+    points:[
+      {t:"Definition",d:"The process of resolving a dispute or disagreement in a way that is mutually acceptable and preserves relationships."},
+      {t:"Avoidance",d:"Ignoring the conflict — works for trivial issues but dangerous for important ones as issues fester and grow."},
+      {t:"Accommodation",d:"One party gives in — preserves relationship short-term but breeds resentment if used consistently."},
+      {t:"Compromise",d:"Both parties give up something — quick resolution but neither party is fully satisfied with the outcome."},
+      {t:"Collaboration",d:"Finding a win-win solution that addresses all parties' core needs — the best approach for important relationships."},
+      {t:"Key Skills",d:"Active listening, empathy, separating people from the problem, focusing on interests not positions, and staying calm."},
+      {t:"Process",d:"Define the issue → understand all perspectives → brainstorm solutions → agree on action → follow up to confirm resolution."},
+    ]},
+  { unit:6, topic:"Teamwork: Necessity & Benefits", subtitle:"Why we achieve more together", tags:["Teamwork","BEU Favourite"],
+    points:[
+      {t:"Why Teams",d:"Complex goals exceed individual capability — teams combine diverse skills, perspectives, and energy that no one person has."},
+      {t:"Personally",d:"Develops communication, empathy, flexibility, leadership, and conflict resolution skills that benefit every life area."},
+      {t:"Socially",d:"Creates belonging, shared purpose, accountability, and social bonds that support wellbeing and resilience."},
+      {t:"Educationally",d:"Peer teaching deepens understanding — explaining to others is the highest form of learning (Bloom's taxonomy)."},
+      {t:"Synergy",d:"Teams produce results greater than the sum of parts — diverse perspectives find better solutions than individuals alone."},
+      {t:"Shared Goals",d:"Common objectives align effort, prevent duplication, and create the shared identity that defines a true team."},
+      {t:"Key Requirements",d:"Clear roles, mutual trust, open communication, shared accountability, and leadership that facilitates rather than controls."},
+    ]},
+  { unit:6, topic:"Feedback in Communication", subtitle:"The gift of constructive input", tags:["Communication"],
+    points:[
+      {t:"Definition",d:"Feedback is information about performance or behavior provided to guide improvement and align expectations."},
+      {t:"Constructive Feedback",d:"Focus on specific behaviors (not personality), be actionable, balanced, timely, and delivered with respect and positive intent."},
+      {t:"SBI Model",d:"Situation-Behavior-Impact: describe the Situation, specific Behavior, and its Impact — removes judgment, increases clarity."},
+      {t:"Receiving Feedback",d:"Listen without defensiveness, seek clarification, thank the giver, reflect, then decide what to act on."},
+      {t:"Feedback Frequency",d:"Regular feedback prevents performance drift — don't wait for annual reviews; ongoing micro-feedback enables continuous growth."},
+      {t:"Psychological Safety",d:"Feedback culture requires safety — people must trust they won't be punished for honest input in either direction."},
+      {t:"Growth Impact",d:"Regular, well-delivered feedback accelerates skill development, aligns performance, and builds a culture of continuous improvement."},
+    ]},
+  { unit:6, topic:"Leadership vs Management", subtitle:"Distinct but complementary roles", tags:["Leadership"],
+    points:[
+      {t:"Core Difference",d:"Leaders inspire and influence people toward a vision. Managers plan, organize, and control processes and resources."},
+      {t:"Leadership Focus",d:"People, vision, change, culture, inspiration, and direction — asking 'Why?' and 'Where are we going?'"},
+      {t:"Management Focus",d:"Systems, processes, execution, efficiency, and control — asking 'How?' and 'Are we getting there on schedule?'"},
+      {t:"Leadership Styles",d:"Autocratic (control), Democratic (collaborative), Laissez-faire (hands-off), Transformational (inspiring change)."},
+      {t:"Both Needed",d:"Great organizations need both — visionary leadership without management creates chaos; management without leadership creates stagnation."},
+      {t:"Can Be Same Person",d:"The best professionals develop both skill sets — they lead when direction is needed and manage when execution matters."},
+      {t:"Developing Leadership",d:"Leadership is learned through experience, mentoring, reflection, reading, and deliberately taking on increasingly complex challenges."},
+    ]},
+  { unit:6, topic:"Assertive Communication", subtitle:"The balanced middle path", tags:["Communication"],
+    points:[
+      {t:"Definition",d:"Expressing your thoughts, feelings, and needs clearly and directly while fully respecting the rights of others."},
+      {t:"Vs Passive",d:"Passive communication suppresses your needs out of fear — leads to resentment, being overlooked, and unfulfilled needs."},
+      {t:"Vs Aggressive",d:"Aggressive communication meets your needs by violating others' rights — damages relationships and creates fear."},
+      {t:"Characteristics",d:"Direct, honest, respectful, calm, confident, uses 'I' statements, maintains appropriate eye contact, firm but not harsh."},
+      {t:"'I' Statements",d:"'I feel frustrated when...' vs 'You always...' — I-statements express your experience without blaming or attacking."},
+      {t:"Saying No",d:"Assertiveness includes the ability to decline requests respectfully without guilt — 'I can't commit to that right now.'"},
+      {t:"Benefits",d:"Reduces stress, improves relationships, earns respect, prevents exploitation, and creates more authentic interactions."},
+    ]},
+  { unit:6, topic:"Gratitude in Professional Life", subtitle:"Appreciation as a relationship strategy", tags:["Interpersonal"],
+    points:[
+      {t:"Definition",d:"Consciously recognizing and appreciating the good in people, experiences, and opportunities — not just thanking perfunctorily."},
+      {t:"Relationship Building",d:"Genuine appreciation strengthens bonds — people feel seen and valued, which deepens trust and commitment."},
+      {t:"Team Morale",d:"Regular gratitude expression boosts team morale, increases engagement, and creates a positive working culture."},
+      {t:"Reciprocity",d:"Expressing gratitude activates reciprocal positive behavior — grateful teams are more collaborative and supportive."},
+      {t:"Mental Health",d:"Gratitude practice reduces stress, increases positivity, and builds resilience — it shifts focus from lack to abundance."},
+      {t:"Networking",d:"Thanking mentors, collaborators, and supporters maintains relationships over time — gratitude is a networking superpower."},
+      {t:"Leadership",d:"Leaders who express authentic gratitude are rated more trustworthy, approachable, and effective by their teams."},
+    ]},
+  { unit:6, topic:"Barriers to Effective Communication", subtitle:"What stops messages getting through", tags:["Communication","BEU Favourite"],
+    points:[
+      {t:"Noise",d:"Physical noise (environment), semantic noise (words misunderstood), and psychological noise (preoccupation, bias) all distort messages."},
+      {t:"Assumptions",d:"Assuming the listener knows what you know — filling in gaps from your own experience rather than checking understanding."},
+      {t:"Language Barriers",d:"Jargon, complex vocabulary, technical terms, or language differences create walls between sender and receiver."},
+      {t:"Emotional State",d:"Anger, anxiety, grief, or excitement distorts both sending and receiving — emotions are filters on all messages."},
+      {t:"Cultural Differences",d:"Different norms for directness, hierarchy, non-verbal cues, and formality create frequent cross-cultural misunderstandings."},
+      {t:"Poor Listening",d:"Thinking about your response while someone speaks, interrupting, or mentally dismissing the speaker before they finish."},
+      {t:"Overcoming Barriers",d:"Active listening, clarifying questions, empathy, simple language, feedback loops, and cultural awareness reduce barriers significantly."},
+    ]},
+];
+
+// =================== STATE ===================
+const SK = 'flashcards_state_v2';
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(SK)) || {}; } catch(e) { return {}; }
+}
+function saveState() {
+  try { localStorage.setItem(SK, JSON.stringify(cardState)); } catch(e) {}
+}
+
+let cardState = loadState(); // { cardIdx: { seen: bool, mastery: 0-3 } }
+let currentFilter = 'all';
+let deck = []; // indices into CARDS
+let currentPos = 0;
+let isFlipped = false;
+
+// =================== FILTER & DECK ===================
+function buildDeck() {
+  deck = CARDS.reduce((acc, c, i) => {
+    if (currentFilter === 'all' || String(c.unit) === currentFilter) acc.push(i);
+    return acc;
+  }, []);
+  currentPos = 0;
+  isFlipped = false;
+  updateCard();
+  updateOverview();
+  updateStats();
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  buildDeck();
+}
+
+function shuffleDeck() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  currentPos = 0;
+  isFlipped = false;
+  updateCard();
+  showToast('🔀 Deck shuffled!');
+}
+
+// =================== CARD RENDER ===================
+function unitColor(u) {
+  return ['','#c0392b','#7b2d8b','#c9952a','#2c7a4b','#1a5276','#1a6b5a'][u];
+}
+function unitLabel(u) {
+  return ['','Unit 1 · Self-Discovery','Unit 2 · Creativity','Unit 3 · Attitude & Motivation',
+          'Unit 4 · Goal Setting','Unit 5 · Time Management','Unit 6 · Interpersonal'][u];
+}
+
+function updateCard() {
+  if (deck.length === 0) return;
+  const idx = deck[currentPos];
+  const card = CARDS[idx];
+  const state = cardState[idx] || { seen: false, mastery: 0 };
+  const uc = unitColor(card.unit);
+
+  // Mark as seen
+  if (!cardState[idx]) cardState[idx] = { seen: false, mastery: 0 };
+  cardState[idx].seen = true;
+  saveState();
+
+  // Counter
+  document.getElementById('card-counter').textContent = `Card ${currentPos + 1} of ${deck.length}`;
+
+  // Nav buttons
+  document.getElementById('prev-btn').disabled = currentPos === 0;
+  document.getElementById('next-btn').disabled = currentPos === deck.length - 1;
+
+  // FRONT
+  const front = document.getElementById('card-front');
+  const masteryDots = [0,1,2,3].map(i =>
+    `<div class="dot ${i < state.mastery ? 'filled' : ''}"></div>`).join('');
+  const tagsHtml = card.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+  front.innerHTML = `
+    <div class="front-top">
+      <span class="front-unit-badge u${card.unit}" style="color:${uc};border-color:${uc}">${unitLabel(card.unit)}</span>
+      <div class="flip-hint"><span class="flip-icon">↻</span> Tap to reveal 7 points</div>
+    </div>
+    <div class="front-content">
+      <div class="front-number">${String(currentPos + 1).padStart(2,'0')}</div>
+      <div class="front-topic">${card.topic}</div>
+      <div class="front-subtitle">${card.subtitle}</div>
+    </div>
+    <div class="front-bottom">
+      <div class="front-tags">${tagsHtml}</div>
+      <div class="mastery-dots">${masteryDots}</div>
+    </div>
+  `;
+
+  // BACK
+  const back = document.getElementById('card-back');
+  const pointsHtml = card.points.map((p, i) => `
+    <div class="point-row">
+      <div class="point-num">${i + 1}.</div>
+      <div class="point-content">
+        <div class="point-title">${p.t}</div>
+        <div class="point-desc">${p.d}</div>
+      </div>
+    </div>
+  `).join('');
+
+  back.innerHTML = `
+    <div class="back-top">
+      <div class="back-topic-label u${card.unit}">${card.topic}</div>
+      <div class="back-label">7 Key Points</div>
+    </div>
+    <div class="back-points">${pointsHtml}</div>
+    <div class="back-bottom">
+      <button class="rate-btn rate-hard" onclick="rateCard(1,event)">😓 Hard</button>
+      <button class="rate-btn rate-ok" onclick="rateCard(2,event)">🤔 Okay</button>
+      <button class="rate-btn rate-easy" onclick="rateCard(3,event)">😊 Easy</button>
+    </div>
+  `;
+
+  // Reset flip
+  isFlipped = false;
+  document.getElementById('card-body').classList.remove('flipped');
+
+  // Animate card in
+  const scene = document.getElementById('card-scene');
+  scene.style.animation = 'none';
+  scene.offsetHeight;
+  scene.style.animation = 'cardEnter 0.4s ease both';
+
+  // Update progress bar
+  const seenInDeck = deck.filter(i => cardState[i]?.seen).length;
+  document.getElementById('deck-bar').style.width = (seenInDeck / deck.length * 100) + '%';
+  document.getElementById('deck-info').textContent = `${seenInDeck} of ${deck.length} seen`;
+
+  updateStats();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('card-body').classList.toggle('flipped', isFlipped);
+}
+
+function prevCard() {
+  if (currentPos > 0) {
+    currentPos--;
+    updateCard();
+  }
+}
+
+function nextCard() {
+  if (currentPos < deck.length - 1) {
+    currentPos++;
+    updateCard();
+  }
+}
+
+function rateCard(level, e) {
+  e.stopPropagation();
+  const idx = deck[currentPos];
+  if (!cardState[idx]) cardState[idx] = { seen: true, mastery: 0 };
+  cardState[idx].mastery = level;
+  saveState();
+
+  const msgs = ['', '↩ Marked as Hard — keep reviewing!', '👍 Okay — you\'re getting there!', '✨ Marked as Easy — great job!'];
+  showToast(msgs[level]);
+
+  updateOverview();
+  updateStats();
+
+  // Auto-advance after rating
+  setTimeout(() => {
+    if (currentPos < deck.length - 1) nextCard();
+    else updateCard(); // refresh mastery dots on front
+  }, 800);
+}
+
+// =================== STATS ===================
+function updateStats() {
+  const allSeen = Object.values(cardState).filter(s => s.seen).length;
+  const allMastered = Object.values(cardState).filter(s => s.mastery === 3).length;
+  const total = CARDS.length;
+  document.getElementById('seen-count').textContent = allSeen;
+  document.getElementById('mastered-count').textContent = allMastered;
+  document.getElementById('total-count').textContent = total;
+  document.getElementById('pct-done').textContent = Math.round(allSeen / total * 100) + '%';
+}
+
+// =================== OVERVIEW ===================
+function updateOverview() {
+  const grid = document.getElementById('overview-grid');
+  grid.innerHTML = '';
+  CARDS.forEach((card, i) => {
+    const s = cardState[i] || { seen: false, mastery: 0 };
+    const isMastered = s.mastery === 3;
+    const isSeen = s.seen;
+    const div = document.createElement('div');
+    div.className = 'overview-card' + (isMastered ? ' mastered' : isSeen ? ' seen' : '');
+    div.innerHTML = `
+      <div class="ov-unit u${card.unit}">${unitLabel(card.unit)}</div>
+      <div class="ov-title">${card.topic}</div>
+      <div class="ov-status ${isMastered ? 'status-mastered' : isSeen ? 'status-seen' : 'status-new'}">
+        ${isMastered ? '✨ Mastered' : isSeen ? '👁 Seen' : '○ Not started'}
+      </div>
+    `;
+    div.onclick = () => {
+      // Find this card in current deck or switch to all
+      const posInDeck = deck.indexOf(i);
+      if (posInDeck >= 0) {
+        currentPos = posInDeck;
+      } else {
+        currentFilter = 'all';
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.filter === 'all');
+        });
+        deck = CARDS.map((_, idx) => idx);
+        currentPos = i;
+      }
+      updateCard();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    grid.appendChild(div);
+  });
+}
+
+// =================== KEYBOARD ===================
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+  if (e.code === 'ArrowRight') nextCard();
+  if (e.code === 'ArrowLeft') prevCard();
+  if (e.code === 'Digit1') rateCard(1, { stopPropagation: ()=>{} });
+  if (e.code === 'Digit2') rateCard(2, { stopPropagation: ()=>{} });
+  if (e.code === 'Digit3') rateCard(3, { stopPropagation: ()=>{} });
+});
+
+// =================== TOAST ===================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// =================== INIT ===================
+buildDeck();
+updateOverview();
+updateStats();
+</script>
+</body>
+</html>

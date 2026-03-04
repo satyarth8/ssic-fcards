@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IoT Robotics Flashcards – CSE 155703</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --card-front: #0f1f3d;
+    --card-back: #1a0f2e;
+    --accent: #00e5ff;
+    --accent2: #a855f7;
+    --accent3: #22d3ee;
+    --gold: #fbbf24;
+    --green: #10b981;
+    --red: #f43f5e;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --border: rgba(0,229,255,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(0,229,255,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 30% at 80% 80%, rgba(168,85,247,0.07) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Grid overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,14,26,0.85);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .logo span { color: var(--accent2); }
+
+  .stats-bar {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+  }
+  .stat-chip .val { color: var(--accent); font-weight: 700; }
+  .stat-chip.streak .val { color: var(--gold); }
+  .stat-chip.score .val { color: var(--green); }
+
+  /* ── UNIT SELECTOR ── */
+  .unit-nav {
+    padding: 20px 32px;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .unit-nav::-webkit-scrollbar { display: none; }
+
+  .unit-btn {
+    flex-shrink: 0;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .unit-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .unit-btn.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 24px 60px;
+  }
+
+  .deck-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .deck-title {
+    font-size: 1.1rem;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .deck-subtitle {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .progress-bar-wrap {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    transition: width 0.4s ease;
+  }
+  .progress-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* ── FLASHCARD ── */
+  .card-scene {
+    perspective: 1400px;
+    margin: 0 auto 28px;
+    max-width: 760px;
+  }
+
+  .card-wrap {
+    position: relative;
+    width: 100%;
+    min-height: 420px;
+    transform-style: preserve-3d;
+    transition: transform 0.7s cubic-bezier(0.4,0,0.2,1);
+    cursor: pointer;
+  }
+  .card-wrap.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 20px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    min-height: 420px;
+  }
+
+  /* FRONT */
+  .card-front {
+    background: linear-gradient(135deg, #0d1f40 0%, #0f172a 100%);
+    border: 1px solid rgba(0,229,255,0.2);
+    box-shadow: 0 0 40px rgba(0,229,255,0.08), inset 0 1px 0 rgba(255,255,255,0.05);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .card-front::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 30px; right: 30px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    border-radius: 100%;
+  }
+
+  .card-tag {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  .card-unit-badge {
+    position: absolute;
+    top: 18px;
+    left: 20px;
+    background: rgba(0,229,255,0.1);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  .flip-hint {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.9; }
+  }
+
+  .topic-icon {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    display: block;
+    filter: drop-shadow(0 0 20px rgba(0,229,255,0.4));
+  }
+
+  .topic-text {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 10px;
+  }
+
+  .topic-sub {
+    font-size: 0.88rem;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  /* BACK */
+  .card-back {
+    transform: rotateY(180deg);
+    background: linear-gradient(135deg, #1a0f2e 0%, #0f0a1e 100%);
+    border: 1px solid rgba(168,85,247,0.25);
+    box-shadow: 0 0 40px rgba(168,85,247,0.08), inset 0 1px 0 rgba(255,255,255,0.04);
+    overflow-y: auto;
+  }
+
+  .card-back::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 30px; right: 30px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+    border-radius: 100%;
+  }
+
+  .back-header {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--accent2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    margin-top: 8px;
+  }
+
+  .points-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .point-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    border-left: 3px solid var(--accent2);
+    transition: background 0.2s;
+  }
+
+  .point-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent2);
+    font-weight: 700;
+    margin-top: 1px;
+    min-width: 20px;
+  }
+
+  .point-content .point-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .point-content .point-desc {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .btn {
+    padding: 12px 28px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-flip {
+    background: linear-gradient(135deg, var(--accent), #0084a8);
+    color: #000;
+    flex: 1;
+    max-width: 200px;
+    justify-content: center;
+  }
+  .btn-flip:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,229,255,0.3); }
+
+  .btn-know {
+    background: rgba(16,185,129,0.15);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: var(--green);
+    flex: 1;
+    max-width: 160px;
+    justify-content: center;
+  }
+  .btn-know:hover { background: rgba(16,185,129,0.25); transform: translateY(-2px); }
+
+  .btn-again {
+    background: rgba(244,63,94,0.12);
+    border: 1px solid rgba(244,63,94,0.3);
+    color: var(--red);
+    flex: 1;
+    max-width: 160px;
+    justify-content: center;
+  }
+  .btn-again:hover { background: rgba(244,63,94,0.22); transform: translateY(-2px); }
+
+  .btn-nav {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 12px 18px;
+  }
+  .btn-nav:hover { color: var(--text); border-color: var(--accent); }
+
+  /* ── MINI PROGRESS DOTS ── */
+  .dot-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+    max-width: 760px;
+    margin-inline: auto;
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    transition: background 0.3s;
+  }
+  .dot.known { background: var(--green); }
+  .dot.again { background: var(--red); }
+  .dot.current { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+  /* ── ACHIEVEMENT TOAST ── */
+  .toast {
+    position: fixed;
+    top: 80px;
+    right: 24px;
+    background: rgba(10,14,26,0.95);
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 999;
+    transform: translateX(200%);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 30px rgba(251,191,36,0.2);
+  }
+  .toast.show { transform: translateX(0); }
+  .toast-icon { font-size: 1.6rem; }
+  .toast-title { font-weight: 700; color: var(--gold); font-size: 0.9rem; }
+  .toast-msg { font-size: 0.78rem; color: var(--muted); }
+
+  /* ── COMPLETION SCREEN ── */
+  .completion {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .completion.show { display: block; }
+  .completion-icon { font-size: 5rem; margin-bottom: 20px; animation: bounce 0.6s ease; }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    40% { transform: translateY(-20px); }
+  }
+  .completion h2 { font-size: 2.4rem; font-weight: 800; margin-bottom: 8px; }
+  .completion p { color: var(--muted); font-size: 1rem; margin-bottom: 32px; }
+  .score-cards {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 36px;
+  }
+  .score-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 30px;
+    min-width: 120px;
+  }
+  .score-card .sc-val {
+    font-size: 2rem;
+    font-weight: 800;
+    font-family: 'Space Mono', monospace;
+  }
+  .score-card .sc-label { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+  .sc-val.green { color: var(--green); }
+  .sc-val.red { color: var(--red); }
+  .sc-val.gold { color: var(--gold); }
+
+  /* FLIP ANIMATION CARD ENTER */
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .card-scene { animation: cardIn 0.35s ease; }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+    header { padding: 14px 16px; }
+    .unit-nav { padding: 14px 16px; }
+    .main { padding: 20px 14px 50px; }
+    .card-face { padding: 28px 22px; }
+    .topic-text { font-size: 1.3rem; }
+    .controls { gap: 10px; }
+    .btn { padding: 10px 18px; font-size: 0.82rem; }
+    .stats-bar { gap: 10px; }
+    .stat-chip { padding: 5px 10px; font-size: 0.72rem; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">IoT<span>.</span>Robotics // <span>155703</span></div>
+  <div class="stats-bar">
+    <div class="stat-chip streak">🔥 <span class="val" id="streakVal">0</span> streak</div>
+    <div class="stat-chip score">⭐ <span class="val" id="scoreVal">0</span> pts</div>
+    <div class="stat-chip">📚 <span class="val" id="totalKnown">0</span> known</div>
+  </div>
+</header>
+
+<!-- UNIT NAV -->
+<div class="unit-nav" id="unitNav"></div>
+
+<!-- MAIN -->
+<div class="main" id="mainArea">
+  <div class="deck-header">
+    <div class="deck-title" id="unitLabel">UNIT 1.0</div>
+    <div class="deck-subtitle" id="unitTitle">Introduction to Robotics & IoT</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-label" id="progressLabel">0 / 0</div>
+    </div>
+  </div>
+
+  <!-- CARD SCENE -->
+  <div class="card-scene" id="cardScene">
+    <div class="card-wrap" id="cardWrap">
+      <div class="card-face card-front" id="cardFront">
+        <div class="card-unit-badge" id="frontBadge">U1</div>
+        <div class="card-tag" id="cardTag">TOPIC</div>
+        <span class="topic-icon" id="topicIcon">🤖</span>
+        <div class="topic-text" id="topicText">Loading...</div>
+        <div class="topic-sub" id="topicSub">Click to reveal 7-point answer</div>
+        <div class="flip-hint">▣ tap / click to flip</div>
+      </div>
+      <div class="card-face card-back" id="cardBack">
+        <div class="card-unit-badge" id="backBadge">U1</div>
+        <div class="back-header">📋 7-POINT ANSWER</div>
+        <ul class="points-list" id="pointsList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls" id="controls">
+    <button class="btn btn-nav" onclick="prevCard()">← Prev</button>
+    <button class="btn btn-flip" onclick="flipCard()">🔄 Flip Card</button>
+    <button class="btn btn-nav" onclick="nextCard()">Next →</button>
+  </div>
+  <div class="controls" id="ratingControls" style="display:none">
+    <button class="btn btn-again" onclick="markAgain()">✗ Review Again</button>
+    <button class="btn btn-know" onclick="markKnown()">✓ Got It!</button>
+  </div>
+
+  <!-- DOTS -->
+  <div class="dot-row" id="dotRow"></div>
+
+  <!-- COMPLETION -->
+  <div class="completion" id="completion">
+    <div class="completion-icon" id="completionIcon">🏆</div>
+    <h2 id="completionTitle">Unit Complete!</h2>
+    <p id="completionMsg">Great work reviewing this unit.</p>
+    <div class="score-cards">
+      <div class="score-card"><div class="sc-val green" id="cKnown">0</div><div class="sc-label">Got It ✓</div></div>
+      <div class="score-card"><div class="sc-val red" id="cAgain">0</div><div class="sc-label">Review Again</div></div>
+      <div class="score-card"><div class="sc-val gold" id="cScore">0</div><div class="sc-label">Points Earned</div></div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-flip" onclick="resetDeck()">🔄 Restart Unit</button>
+      <button class="btn btn-know" onclick="nextUnit()">Next Unit →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toastIcon">🏅</div>
+  <div>
+    <div class="toast-title" id="toastTitle">Achievement!</div>
+    <div class="toast-msg" id="toastMsg">Keep going!</div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────
+const units = [
+  {
+    id: 1,
+    label: "UNIT 1.0",
+    title: "Introduction to Robotics & IoT",
+    cards: [
+      {
+        topic: "Definition of Robotics",
+        icon: "🤖",
+        sub: "What is Robotics?",
+        points: [
+          { t: "Definition", d: "Robotics is the branch of engineering that designs, builds, and operates robots to perform tasks." },
+          { t: "Interdisciplinary Field", d: "Combines mechanical engineering, electrical engineering, CS, and AI." },
+          { t: "Automation Goal", d: "Robots automate repetitive, dangerous, or precise tasks that humans struggle with." },
+          { t: "Sensing", d: "Robots perceive the environment using sensors like cameras, sonar, and IR." },
+          { t: "Actuation", d: "Actuators (motors, servos) allow robots to physically move and interact." },
+          { t: "Intelligence", d: "Programming gives robots decision-making ability to respond to inputs." },
+          { t: "Human-Robot Interaction", d: "Modern robots can collaborate with humans safely (cobots)." }
+        ]
+      },
+      {
+        topic: "History of Robotics",
+        icon: "📜",
+        sub: "Key milestones in robotics evolution",
+        points: [
+          { t: "1920 – Term coined", d: "Karel Čapek first used 'Robot' in his play R.U.R. meaning 'forced labor'." },
+          { t: "1954 – First Robot", d: "George Devol invented Unimate, the first programmable industrial robot." },
+          { t: "1961 – GM Installation", d: "Unimate was installed at GM factory for assembly line tasks." },
+          { t: "1970s – Research Era", d: "Stanford Arm and MIT arms advanced robotic manipulation research." },
+          { t: "1980s – Industrial Boom", d: "Robots became widespread in automotive and manufacturing industries." },
+          { t: "2000s – Service Robots", d: "Robots like ASIMO (Honda) and Roomba entered service/home domains." },
+          { t: "2010s–now – AI Robots", d: "Deep learning enabled robots to perceive, learn, and adapt in real-time." }
+        ]
+      },
+      {
+        topic: "Applications of Robotics",
+        icon: "🏭",
+        sub: "Where robots are used today",
+        points: [
+          { t: "Industrial", d: "Welding, painting, assembly, and material handling in factories." },
+          { t: "Medical", d: "Surgical robots (Da Vinci), robotic prosthetics, and rehabilitation robots." },
+          { t: "Agriculture", d: "Automated harvesting, seed planting, and crop monitoring robots." },
+          { t: "Military & Defense", d: "Bomb disposal, surveillance drones, and autonomous combat vehicles." },
+          { t: "Space Exploration", d: "Mars Rovers (Curiosity, Perseverance) and ISS maintenance robots." },
+          { t: "Logistics", d: "Warehouse robots (Amazon Kiva), delivery drones, and sorting machines." },
+          { t: "Education & Research", d: "Robots used to teach programming, STEM, and for scientific experiments." }
+        ]
+      },
+      {
+        topic: "Types of Robots",
+        icon: "🦾",
+        sub: "Mobile, Autonomous & Industrial",
+        points: [
+          { t: "Mobile Robots", d: "Can move around their environment; e.g., wheeled robots, drones, underwater ROVs." },
+          { t: "Autonomous Robots", d: "Operate independently without human control using AI and sensors." },
+          { t: "Industrial Robots", d: "Fixed-arm robots on factory floors for welding, assembly, and painting." },
+          { t: "Collaborative (Cobots)", d: "Work side-by-side with humans safely, with force-limiting joints." },
+          { t: "Humanoid Robots", d: "Human-shaped robots like Boston Dynamics' Atlas, designed for complex tasks." },
+          { t: "Service Robots", d: "Assist people in healthcare, cleaning, hospitality (e.g., hospital delivery robots)." },
+          { t: "Swarm Robots", d: "Large groups of simple robots that collectively perform complex tasks." }
+        ]
+      },
+      {
+        topic: "Introduction to IoT",
+        icon: "🌐",
+        sub: "Definition, Components & Architecture",
+        points: [
+          { t: "Definition", d: "IoT = Internet of Things; physical devices connected to the internet to collect and exchange data." },
+          { t: "Things (Devices)", d: "Embedded physical objects with sensors, actuators, and connectivity (smart bulbs, wearables)." },
+          { t: "Connectivity", d: "Devices connect via Wi-Fi, Bluetooth, Zigbee, LoRa, or cellular networks." },
+          { t: "Data Processing", d: "Collected data is processed at edge, fog, or cloud level for insights." },
+          { t: "Architecture Layers", d: "Perception → Network → Middleware → Application (4-layer model)." },
+          { t: "Actuators & Control", d: "IoT not only senses but also actuates – turning on AC, locking doors, etc." },
+          { t: "Applications", d: "Smart homes, healthcare monitoring, smart cities, agriculture, and industry." }
+        ]
+      },
+      {
+        topic: "Evolution of IoT",
+        icon: "🚀",
+        sub: "How IoT developed over time",
+        points: [
+          { t: "1980s – Early Internet", d: "ARPANET evolved; first connected device: a Coke machine at CMU in 1982." },
+          { t: "1999 – Term 'IoT'", d: "Kevin Ashton coined 'Internet of Things' at P&G, linking RFID to internet." },
+          { t: "2000s – RFID Era", d: "RFID used in supply chains to track goods automatically." },
+          { t: "2010 – Smartphones", d: "Mobile devices became gateways connecting everyday objects to internet." },
+          { t: "2013–16 – Cloud IoT", d: "AWS IoT, Azure IoT Hub launched; cloud became the IoT backbone." },
+          { t: "2017+ – Edge Computing", d: "Processing moved closer to devices to reduce latency and bandwidth." },
+          { t: "Now – AI + IoT (AIoT)", d: "AI embedded in devices for real-time intelligent decision making." }
+        ]
+      },
+      {
+        topic: "Enabling Technologies of IoT",
+        icon: "⚙️",
+        sub: "RFID, WSN, Cloud & Big Data",
+        points: [
+          { t: "RFID", d: "Radio Frequency Identification: tags emit signals; readers identify objects without contact." },
+          { t: "WSN (Wireless Sensor Network)", d: "Distributed sensors that communicate wirelessly to monitor environment." },
+          { t: "Cloud Computing", d: "Scalable storage and computation for massive IoT-generated data." },
+          { t: "Big Data Analytics", d: "Tools like Hadoop, Spark process billions of IoT data points for insights." },
+          { t: "Edge Computing", d: "Processing at the device/gateway level to reduce delay and cloud load." },
+          { t: "Embedded Systems", d: "Low-power microcontrollers (Arduino, ESP32) embedded in IoT devices." },
+          { t: "IPv6 / Addressing", d: "IPv6 provides enough IP addresses for billions of connected IoT devices." }
+        ]
+      }
+    ]
+  },
+  {
+    id: 2,
+    label: "UNIT 2.0",
+    title: "IoT Sensors and Actuators",
+    cards: [
+      {
+        topic: "Types of IoT Sensors",
+        icon: "🌡️",
+        sub: "Temperature, Humidity, Pressure, Proximity",
+        points: [
+          { t: "Temperature Sensors", d: "DHT11/DHT22 or DS18B20 measure ambient or water temperature accurately." },
+          { t: "Humidity Sensors", d: "DHT series measures relative humidity; used in HVAC and greenhouses." },
+          { t: "Pressure Sensors", d: "BMP280 measures atmospheric pressure; used in altimeters and weather stations." },
+          { t: "Proximity Sensors", d: "IR or ultrasonic (HC-SR04) detect nearby objects without physical contact." },
+          { t: "Light Sensors", d: "LDR or BH1750 measure light intensity for smart lighting systems." },
+          { t: "Gas/Air Quality Sensors", d: "MQ-135 detects CO2, smoke, alcohol; used in safety and air quality monitoring." },
+          { t: "Accelerometer / Gyro", d: "MPU6050 measures motion, tilt, and rotation; used in drones and robots." }
+        ]
+      },
+      {
+        topic: "Actuators in IoT",
+        icon: "⚡",
+        sub: "Motors, Servos, Steppers & Solenoids",
+        points: [
+          { t: "DC Motors", d: "Simple rotary motion; controlled via H-bridge (L298N); used in wheeled robots." },
+          { t: "Servo Motors", d: "Precise angular control (0–180°); feedback via potentiometer; used in robotic arms." },
+          { t: "Stepper Motors", d: "Rotate in discrete steps; precise positioning; used in CNC and 3D printers." },
+          { t: "Solenoids", d: "Convert electrical energy to linear motion; used in locks and valves." },
+          { t: "Relay Modules", d: "Electrically switch high-power devices ON/OFF from a microcontroller signal." },
+          { t: "PWM Control", d: "Pulse Width Modulation varies motor speed/servo position via duty cycle." },
+          { t: "Pneumatic/Hydraulic", d: "High-force actuators used in heavy industrial robots via pressurized fluid." }
+        ]
+      },
+      {
+        topic: "Sensor/Actuator Selection",
+        icon: "🎯",
+        sub: "Selection criteria for robotic systems",
+        points: [
+          { t: "Accuracy & Precision", d: "Choose sensor with resolution matching your application needs (e.g., ±0.5°C)." },
+          { t: "Operating Range", d: "Ensure sensor works within expected min/max values of the environment." },
+          { t: "Power Consumption", d: "Battery-powered robots need low-power sensors (sleep modes, duty cycling)." },
+          { t: "Response Time", d: "Fast-moving robots need fast sensors; slow response causes errors." },
+          { t: "Environmental Durability", d: "IP ratings (waterproof, dustproof) matter for outdoor robotic systems." },
+          { t: "Interface Protocol", d: "Match sensor output (I2C, SPI, UART, analog) to microcontroller capabilities." },
+          { t: "Cost & Availability", d: "Balance performance with budget; prefer widely-supported components." }
+        ]
+      },
+      {
+        topic: "Robotic Perception with IoT",
+        icon: "👁️",
+        sub: "Enhancing robot senses using IoT sensors",
+        points: [
+          { t: "Environmental Awareness", d: "IoT sensors give robots data about surroundings – temperature, humidity, gas." },
+          { t: "Object Detection", d: "Ultrasonic and IR sensors detect obstacles for collision avoidance." },
+          { t: "Localization", d: "GPS + IMU sensors help robots know their position and orientation." },
+          { t: "Vision", d: "Cameras + OpenCV allow robots to detect faces, colors, and QR codes." },
+          { t: "LiDAR Mapping", d: "LiDAR creates 2D/3D maps of environment; used in self-driving and navigation." },
+          { t: "Sensor Fusion", d: "Combining data from multiple sensors (camera + IMU + LiDAR) for accuracy." },
+          { t: "Real-Time Processing", d: "Edge processing of sensor data enables fast reactive robot behavior." }
+        ]
+      },
+      {
+        topic: "Integration: Cameras, LiDAR, Ultrasonic",
+        icon: "📷",
+        sub: "Advanced sensors with IoT platforms",
+        points: [
+          { t: "Cameras", d: "Pi Camera / USB cams capture visual data; used for object recognition and navigation." },
+          { t: "LiDAR", d: "Laser-based distance sensing; creates point clouds; used in autonomous cars." },
+          { t: "Ultrasonic Sensors", d: "HC-SR04 sends sound pulses; measures distance using echo time (2–400 cm)." },
+          { t: "Depth Cameras", d: "Intel RealSense / Microsoft Kinect give 3D depth perception for robots." },
+          { t: "Infrared (IR)", d: "Short-range object detection; commonly used in line-following robots." },
+          { t: "Integration with IoT Cloud", d: "Camera frames or LiDAR data streamed to cloud for AI analysis." },
+          { t: "ROS (Robot OS)", d: "Middleware framework that integrates sensor data from multiple sources in robots." }
+        ]
+      },
+      {
+        topic: "Interfacing with Microcontrollers",
+        icon: "🔌",
+        sub: "Arduino / Raspberry Pi / NodeMCU",
+        points: [
+          { t: "Arduino", d: "ATmega microcontroller; good for simple sensor reading, PWM, and serial output." },
+          { t: "Raspberry Pi", d: "Full Linux-based SBC; handles vision, web servers, and complex logic." },
+          { t: "NodeMCU (ESP8266/ESP32)", d: "Wi-Fi enabled microcontroller; ideal for IoT connectivity and MQTT." },
+          { t: "GPIO Pins", d: "General Purpose I/O pins used to connect digital/analog sensors and actuators." },
+          { t: "I2C / SPI", d: "Serial communication protocols for connecting multiple sensors on same bus." },
+          { t: "PWM Output", d: "Used to control servo motors and DC motor speed via analog simulation." },
+          { t: "Libraries & Frameworks", d: "Arduino IDE, Python (RPi.GPIO), MicroPython simplify interfacing code." }
+        ]
+      }
+    ]
+  },
+  {
+    id: 3,
+    label: "UNIT 3.0",
+    title: "Design Principles for Connected Devices",
+    cards: [
+      {
+        topic: "IoT/M2M System Layers",
+        icon: "🏗️",
+        sub: "Architecture and design standardization",
+        points: [
+          { t: "Perception Layer", d: "Bottom layer: physical sensors and actuators that collect real-world data." },
+          { t: "Network Layer", d: "Transmits data from sensors to gateways and cloud via wired/wireless protocols." },
+          { t: "Middleware Layer", d: "Manages device data, message brokering, and device registration." },
+          { t: "Application Layer", d: "Top layer: end-user apps, dashboards, and business logic." },
+          { t: "M2M Communication", d: "Machine-to-Machine: devices communicate directly without human intervention." },
+          { t: "Standardization", d: "Bodies like IEEE, ETSI, oneM2M define standards to ensure interoperability." },
+          { t: "Design Goals", d: "Scalability, security, low latency, and energy efficiency are key design priorities." }
+        ]
+      },
+      {
+        topic: "Communication Technologies",
+        icon: "📡",
+        sub: "Wi-Fi, BLE, ZigBee, LoRa, RFID",
+        points: [
+          { t: "Wi-Fi (802.11)", d: "High speed, short range (~50m), high power; used for cameras and video streaming." },
+          { t: "BLE (Bluetooth Low Energy)", d: "Very low power, short range (~10m); used in wearables and beacons." },
+          { t: "ZigBee", d: "Mesh network, very low power, 250kbps; used in smart home sensors and lighting." },
+          { t: "LoRa / LoRaWAN", d: "Long range (10+ km), very low power, low data rate; ideal for smart farming." },
+          { t: "RFID", d: "Passive tags read by readers up to a few meters; used in inventory and access control." },
+          { t: "NB-IoT / LTE-M", d: "Cellular IoT standards for wide-area low-power IoT devices (smart meters)." },
+          { t: "Selection Criteria", d: "Choose based on range, power, bandwidth, cost, and network topology needed." }
+        ]
+      },
+      {
+        topic: "Web Communication Protocols",
+        icon: "🔗",
+        sub: "HTTP, MQTT, CoAP, WebSockets",
+        points: [
+          { t: "HTTP/HTTPS", d: "Stateless request-response protocol; used for REST APIs; high overhead." },
+          { t: "MQTT", d: "Lightweight publish-subscribe protocol; broker-based; ideal for low-power IoT." },
+          { t: "CoAP", d: "Constrained Application Protocol; like HTTP but for resource-limited devices." },
+          { t: "WebSockets", d: "Full-duplex TCP connection; enables real-time bidirectional communication." },
+          { t: "AMQP", d: "Advanced Message Queuing Protocol; used in enterprise-level message brokering." },
+          { t: "MQTT Broker", d: "Software like Mosquitto, HiveMQ, or AWS IoT Core routes MQTT messages." },
+          { t: "QoS Levels", d: "MQTT has 3 QoS levels: 0 (at most once), 1 (at least once), 2 (exactly once)." }
+        ]
+      },
+      {
+        topic: "Gateway & Data Management",
+        icon: "🔀",
+        sub: "Enrichment, Consolidation, Device Management",
+        points: [
+          { t: "Gateway Role", d: "Bridges local sensor networks (ZigBee, BLE) to the internet (Wi-Fi, Ethernet)." },
+          { t: "Data Enrichment", d: "Adding context to raw sensor data (e.g., timestamps, GPS location, device ID)." },
+          { t: "Data Consolidation", d: "Aggregating data from multiple sensors before sending to reduce bandwidth." },
+          { t: "Device Management", d: "OTA updates, configuration, monitoring device health and connectivity." },
+          { t: "Protocol Translation", d: "Gateway converts MQTT to HTTP, or ZigBee frames to TCP/IP packets." },
+          { t: "Edge Processing", d: "Basic filtering and alerts processed at gateway to reduce cloud dependency." },
+          { t: "Examples", d: "Raspberry Pi, AWS Greengrass, Azure IoT Edge can act as smart gateways." }
+        ]
+      },
+      {
+        topic: "Internet Connectivity & IP Addressing",
+        icon: "🌍",
+        sub: "How IoT devices connect to the internet",
+        points: [
+          { t: "IPv4 Limitation", d: "IPv4 has ~4.3B addresses; insufficient for billions of IoT devices." },
+          { t: "IPv6 Solution", d: "IPv6 provides 340 undecillion addresses; enables every device to have unique IP." },
+          { t: "NAT (Network Address Translation)", d: "Allows multiple devices to share one public IP in a local network." },
+          { t: "Static vs Dynamic IP", d: "Static IPs are fixed (for servers); dynamic IPs (DHCP) assigned automatically." },
+          { t: "6LoWPAN", d: "IPv6 over Low-Power Wireless PANs; allows IoT devices to use IPv6 directly." },
+          { t: "DNS for IoT", d: "Domain names map to device IPs; makes device access human-readable." },
+          { t: "Network Topologies", d: "Star, mesh, and tree topologies used in different IoT deployment scenarios." }
+        ]
+      }
+    ]
+  },
+  {
+    id: 4,
+    label: "UNIT 4.0",
+    title: "IoT Platforms and Middleware",
+    cards: [
+      {
+        topic: "IoT Cloud Platforms",
+        icon: "☁️",
+        sub: "AWS IoT, Azure IoT, Google Cloud IoT",
+        points: [
+          { t: "AWS IoT Core", d: "Amazon's managed cloud service for connecting, managing, and securing IoT devices." },
+          { t: "Azure IoT Hub", d: "Microsoft's platform for bidirectional communication between cloud and IoT devices." },
+          { t: "Google Cloud IoT", d: "GCP's IoT service (now migrated to third parties) for device management." },
+          { t: "Device Shadows", d: "AWS IoT 'shadows' store last-known state of device even when offline." },
+          { t: "MQTT on Cloud", d: "All major platforms support MQTT protocol for lightweight device messaging." },
+          { t: "IoT Rules Engine", d: "AWS IoT rules can trigger Lambda, DynamoDB, or S3 on incoming data." },
+          { t: "Dashboard & Analytics", d: "Platforms provide real-time dashboards (AWS CloudWatch, Azure Monitor)." }
+        ]
+      },
+      {
+        topic: "IoT Middleware",
+        icon: "🔧",
+        sub: "Integrating IoT devices and robotics",
+        points: [
+          { t: "Definition", d: "Middleware is software layer between hardware devices and application layer." },
+          { t: "Device Abstraction", d: "Hides hardware-specific details; apps communicate with devices uniformly." },
+          { t: "Message Brokering", d: "Middleware routes messages between publishers and subscribers (MQTT broker)." },
+          { t: "Data Management", d: "Stores, processes, and forwards data from multiple devices." },
+          { t: "Security Management", d: "Handles authentication, authorization, and encryption for IoT communications." },
+          { t: "Examples", d: "Eclipse Kura, OpenHAB, Home Assistant, AWS Greengrass act as IoT middleware." },
+          { t: "ROS as Middleware", d: "Robot Operating System is middleware specifically for robotic systems integration." }
+        ]
+      },
+      {
+        topic: "Setting Up IoT Platforms",
+        icon: "🛠️",
+        sub: "Hands-on with platforms for robotics",
+        points: [
+          { t: "Device Registration", d: "Register each device on the platform; receive certificates and endpoint URL." },
+          { t: "SDK & Libraries", d: "AWS IoT SDK, Azure IoT SDK available in Python, C, Java, Node.js." },
+          { t: "Connecting Device", d: "Device publishes data to cloud topic using MQTT with TLS encryption." },
+          { t: "Rules & Actions", d: "Define rules to trigger actions (alerts, storage, processing) on data arrival." },
+          { t: "OTA Updates", d: "Push firmware/software updates to robots remotely via platform." },
+          { t: "Monitoring & Logging", d: "Track device health, uptime, and message rates from cloud dashboard." },
+          { t: "Testing", d: "Use MQTT clients (MQTT.fx, MQTTBox) to test publish/subscribe flows." }
+        ]
+      },
+      {
+        topic: "Edge Computing in Robotics",
+        icon: "⚡",
+        sub: "Local intelligence for faster decisions",
+        points: [
+          { t: "Definition", d: "Edge computing processes data locally on device/gateway instead of sending to cloud." },
+          { t: "Low Latency", d: "Critical for real-time robot control; cloud round-trip adds 50–200ms delay." },
+          { t: "Offline Operation", d: "Robots can function without internet using edge intelligence." },
+          { t: "Bandwidth Saving", d: "Only processed results or alerts sent to cloud; raw data stays local." },
+          { t: "Edge Devices", d: "NVIDIA Jetson, Raspberry Pi, Intel NUC run ML models at the edge." },
+          { t: "Fog Computing", d: "Intermediate layer between edge and cloud; adds local server for heavier tasks." },
+          { t: "Use in Robotics", d: "Obstacle detection, path planning, and immediate motor control done at edge." }
+        ]
+      }
+    ]
+  },
+  {
+    id: 5,
+    label: "UNIT 5.0",
+    title: "Data Acquisition and Processing",
+    cards: [
+      {
+        topic: "Data Acquisition in Robotics",
+        icon: "📊",
+        sub: "Collecting data from IoT sensors & actuators",
+        points: [
+          { t: "Definition", d: "Data acquisition (DAQ) = collecting raw data from sensors for analysis and control." },
+          { t: "Analog to Digital", d: "ADC converts analog sensor signals (voltage) to digital values the MCU reads." },
+          { t: "Sampling Rate", d: "How often data is collected per second (Hz); faster rates for dynamic systems." },
+          { t: "Polling vs Interrupt", d: "Polling checks sensor continuously; interrupts trigger only on data change (efficient)." },
+          { t: "Multi-Sensor Fusion", d: "Combining data streams from different sensors for richer robot awareness." },
+          { t: "Timestamping", d: "Each data point tagged with time for accurate playback and analysis." },
+          { t: "Data Pipelines", d: "Automated flow: Sensor → MCU → Gateway → Cloud → Dashboard." }
+        ]
+      },
+      {
+        topic: "Data Logging Formats",
+        icon: "📁",
+        sub: "JSON, CSV, MQTT Payloads",
+        points: [
+          { t: "JSON", d: "JavaScript Object Notation; human-readable key-value pairs; widely used in APIs." },
+          { t: "CSV", d: "Comma-Separated Values; simple tabular format; easy to open in Excel/spreadsheets." },
+          { t: "MQTT Payload", d: "MQTT messages carry payload as JSON or binary; lightweight for IoT." },
+          { t: "XML", d: "Older structured format; verbose but used in some legacy IoT systems." },
+          { t: "Protobuf / MessagePack", d: "Binary serialization; much smaller than JSON; used in high-speed systems." },
+          { t: "Time-Series DB", d: "InfluxDB, TimescaleDB store time-stamped IoT data efficiently." },
+          { t: "Log Rotation", d: "Older logs archived or deleted to manage storage on resource-limited devices." }
+        ]
+      },
+      {
+        topic: "Data Processing Techniques",
+        icon: "⚙️",
+        sub: "Filtering, Aggregation & Normalization",
+        points: [
+          { t: "Filtering", d: "Remove noise and outliers; moving average or Kalman filter smooth sensor data." },
+          { t: "Aggregation", d: "Summarize data over time: min, max, mean, sum over intervals (e.g., per minute)." },
+          { t: "Normalization", d: "Scale sensor values to 0–1 or –1 to 1 range for ML model compatibility." },
+          { t: "Data Cleaning", d: "Handle missing values, corrupt readings, and duplicate entries." },
+          { t: "Feature Extraction", d: "Derive meaningful features from raw data (e.g., variance, frequency)." },
+          { t: "Compression", d: "Reduce data size before transmission; lossless (gzip) or lossy methods." },
+          { t: "Edge Processing", d: "Run lightweight processing on microcontroller before sending data upstream." }
+        ]
+      },
+      {
+        topic: "Real-Time Data Analysis",
+        icon: "⏱️",
+        sub: "Live analytics in robotics applications",
+        points: [
+          { t: "Real-Time Definition", d: "Analysis with minimal delay; results available instantly to control systems." },
+          { t: "Stream Processing", d: "Tools like Apache Kafka, Flink process continuous data streams from robots." },
+          { t: "Threshold Alerts", d: "Trigger alarm or actuator action when sensor exceeds set limit instantly." },
+          { t: "PID Control", d: "Proportional-Integral-Derivative controller uses real-time data to adjust robot movement." },
+          { t: "Dashboards", d: "Grafana, Node-RED Dashboard display live sensor data in visual format." },
+          { t: "Anomaly Detection", d: "ML models flag unusual patterns in real-time (e.g., motor overheating)." },
+          { t: "Latency Requirement", d: "Safety-critical systems need <10ms; most IoT dashboards tolerate 100ms–1s." }
+        ]
+      }
+    ]
+  },
+  {
+    id: 6,
+    label: "UNIT 6.0",
+    title: "IoT-Enabled Robotic Applications",
+    cards: [
+      {
+        topic: "Smart Robotic Systems",
+        icon: "🤖",
+        sub: "IoT-powered intelligent robots",
+        points: [
+          { t: "Definition", d: "Smart robots integrate IoT sensors, cloud connectivity, and AI to operate autonomously." },
+          { t: "Remote Monitoring", d: "Operators monitor robot status, health, and environment via cloud dashboard." },
+          { t: "Adaptive Behavior", d: "Robots adapt actions based on real-time sensor feedback from environment." },
+          { t: "Predictive Maintenance", d: "IoT data predicts component failure before it happens, reducing downtime." },
+          { t: "Fleet Management", d: "Multiple robots managed from single IoT platform (e.g., warehouse robot fleets)." },
+          { t: "OTA Updates", d: "Robot software updated remotely via cloud without manual intervention." },
+          { t: "Digital Twin", d: "Virtual replica of robot in cloud simulates behavior and tests changes safely." }
+        ]
+      },
+      {
+        topic: "IoT-Based Mobile Robots",
+        icon: "🚗",
+        sub: "Connected robots that move autonomously",
+        points: [
+          { t: "Definition", d: "Mobile robots navigate environments autonomously using IoT sensors and cloud data." },
+          { t: "Navigation", d: "GPS, LiDAR, ultrasonic, and camera used for path planning and obstacle avoidance." },
+          { t: "Remote Control via IoT", d: "Commands sent from cloud/app through MQTT to control robot's movement." },
+          { t: "Mapping (SLAM)", d: "Simultaneous Localization and Mapping lets robot build map while navigating." },
+          { t: "Battery Management", d: "IoT monitors battery level; robot auto-docks to charger when low." },
+          { t: "Communication", d: "Wi-Fi or 4G/5G for continuous connectivity; local BLE for nearby devices." },
+          { t: "Use Cases", d: "Hospital delivery, security patrol, guided tours in museums, floor cleaning." }
+        ]
+      },
+      {
+        topic: "IIoT Robotics Applications",
+        icon: "🏭",
+        sub: "Industrial IoT and manufacturing robots",
+        points: [
+          { t: "IIoT Definition", d: "Industrial IoT applies IoT to manufacturing, energy, mining, and logistics." },
+          { t: "Automated Production", d: "Robotic arms with IoT connectivity automate assembly with zero defects." },
+          { t: "Quality Inspection", d: "IoT cameras and AI inspect products for defects in real time on production line." },
+          { t: "Inventory Tracking", d: "RFID + IoT robots automatically scan and track stock in warehouses." },
+          { t: "Predictive Maintenance", d: "Vibration and temperature sensors on machines predict failures early." },
+          { t: "Safety Systems", d: "IoT sensors detect human presence; robot slows/stops to prevent accidents." },
+          { t: "Energy Optimization", d: "IoT monitors robot energy usage; optimizes scheduling to cut electricity cost." }
+        ]
+      },
+      {
+        topic: "Healthcare & Service Robots",
+        icon: "🏥",
+        sub: "Robots with IoT in health and services",
+        points: [
+          { t: "Surgical Robots", d: "IoT-connected Da Vinci robot transmits real-time haptic and video data." },
+          { t: "Patient Monitoring", d: "IoT wearables track vitals; data sent to nursing robots or alert systems." },
+          { t: "Medicine Delivery", d: "Autonomous robots deliver medicine to wards without nurse involvement." },
+          { t: "Disinfection Robots", d: "UV-light robots disinfect hospital rooms; controlled remotely via IoT." },
+          { t: "Rehabilitation Robots", d: "Exoskeletons with IoT sensors help patients relearn movement with feedback." },
+          { t: "Elderly Care", d: "Companion robots with sensors detect falls, remind medication, call for help." },
+          { t: "Telemedicine Robots", d: "Telepresence robots allow remote doctors to examine and interact with patients." }
+        ]
+      },
+      {
+        topic: "Autonomous Delivery Robots",
+        icon: "📦",
+        sub: "Last-mile delivery using IoT robots",
+        points: [
+          { t: "Use Case", d: "Deliver packages, food, or medicine autonomously to doorstep using robots." },
+          { t: "Navigation Tech", d: "GPS + LiDAR + cameras for outdoor navigation; odometry for indoor." },
+          { t: "IoT Connectivity", d: "4G/LTE keeps robot connected to dispatch center for routing updates." },
+          { t: "Obstacle Avoidance", d: "Real-time ultrasonic and camera data avoids pedestrians and vehicles." },
+          { t: "Security", d: "IoT locks on cargo compartment; unlocked only for verified recipient via app." },
+          { t: "Fleet Coordination", d: "Multiple delivery robots tracked and managed from central IoT dashboard." },
+          { t: "Examples", d: "Starship Technologies, Nuro, Amazon Scout are real-world delivery robot companies." }
+        ]
+      },
+      {
+        topic: "Case Studies: Drones & Warehouse Robots",
+        icon: "🚁",
+        sub: "Real-world IoT robotics deployments",
+        points: [
+          { t: "Amazon Kiva Robots", d: "Wheeled robots fetch shelves and bring to pickers; 300% efficiency improvement." },
+          { t: "Agricultural Drones", d: "Drones with IoT sensors monitor crop health, spray pesticide precisely." },
+          { t: "DHL Parcelcopter", d: "Delivery drone system tested in remote German islands for medicine delivery." },
+          { t: "Boston Dynamics Spot", d: "Quadruped IoT robot used for site inspection in construction and oil plants." },
+          { t: "Tesla Bot (Optimus)", d: "Humanoid robot designed for factory tasks; uses Tesla's AI and IoT ecosystem." },
+          { t: "Smart Farming Robots", d: "IoT robots plant seeds, pick fruits, and analyze soil; reduce labor cost." },
+          { t: "Mini-Project Idea", d: "IoT-controlled robot: Arduino + NodeMCU; controlled via MQTT over Wi-Fi app." }
+        ]
+      }
+    ]
+  }
+];
+
+// ── STATE ─────────────────────────────────────────────────────────
+let currentUnit = 0;
+let currentCard = 0;
+let isFlipped = false;
+let cardStatus = []; // 'unknown','known','again'
+let totalScore = 0;
+let streak = 0;
+let totalKnown = 0;
+let achievements = [
+  { id:'first', label:'First Flip!', icon:'🃏', msg:'You flipped your first card!', done:false },
+  { id:'streak3', label:'On Fire!', icon:'🔥', msg:'3 correct in a row!', done:false },
+  { id:'unit1', label:'Unit Clear!', icon:'🏅', msg:'Finished a whole unit!', done:false },
+  { id:'known10', label:'Knowledge!', icon:'🧠', msg:'10 cards mastered!', done:false },
+  { id:'streak5', label:'Unstoppable!', icon:'⚡', msg:'5 streak! Amazing!', done:false },
+];
+let firstFlip = false;
+
+// ── INIT ──────────────────────────────────────────────────────────
+function init() {
+  buildUnitNav();
+  loadUnit(0);
+}
+
+function buildUnitNav() {
+  const nav = document.getElementById('unitNav');
+  nav.innerHTML = '';
+  units.forEach((u, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'unit-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = u.label.replace('UNIT ', 'U') + ' – ' + u.title.split(' ').slice(0,3).join(' ') + '…';
+    btn.onclick = () => loadUnit(i);
+    nav.appendChild(btn);
+  });
+}
+
+function loadUnit(idx) {
+  currentUnit = idx;
+  currentCard = 0;
+  isFlipped = false;
+  cardStatus = new Array(units[idx].cards.length).fill('unknown');
+
+  // Update nav
+  document.querySelectorAll('.unit-btn').forEach((b,i) => b.classList.toggle('active', i === idx));
+
+  // Update header
+  const u = units[idx];
+  document.getElementById('unitLabel').textContent = u.label;
+  document.getElementById('unitTitle').textContent = u.title;
+
+  // Show card area, hide completion
+  document.getElementById('completion').classList.remove('show');
+  document.getElementById('cardScene').style.display = '';
+  document.getElementById('controls').style.display = '';
+  document.getElementById('ratingControls').style.display = 'none';
+  document.getElementById('dotRow').style.display = '';
+
+  buildDots();
+  renderCard();
+  updateProgress();
+  updateStats();
+}
+
+function buildDots() {
+  const row = document.getElementById('dotRow');
+  row.innerHTML = '';
+  units[currentUnit].cards.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' current' : '');
+    d.id = `dot-${i}`;
+    row.appendChild(d);
+  });
+}
+
+function updateDots() {
+  units[currentUnit].cards.forEach((_, i) => {
+    const d = document.getElementById(`dot-${i}`);
+    if (!d) return;
+    d.className = 'dot';
+    if (cardStatus[i] === 'known') d.classList.add('known');
+    else if (cardStatus[i] === 'again') d.classList.add('again');
+    if (i === currentCard) d.classList.add('current');
+  });
+}
+
+function renderCard() {
+  const card = units[currentUnit].cards[currentCard];
+  const wrap = document.getElementById('cardWrap');
+
+  // Reset flip
+  isFlipped = false;
+  wrap.classList.remove('flipped');
+
+  // Front
+  document.getElementById('frontBadge').textContent = `U${currentUnit + 1}`;
+  document.getElementById('backBadge').textContent = `U${currentUnit + 1}`;
+  document.getElementById('cardTag').textContent = `${currentCard + 1} / ${units[currentUnit].cards.length}`;
+  document.getElementById('topicIcon').textContent = card.icon;
+  document.getElementById('topicText').textContent = card.topic;
+  document.getElementById('topicSub').textContent = card.sub;
+
+  // Back
+  const list = document.getElementById('pointsList');
+  list.innerHTML = '';
+  card.points.forEach((p, i) => {
+    const li = document.createElement('li');
+    li.className = 'point-item';
+    li.innerHTML = `
+      <div class="point-num">${i + 1}.</div>
+      <div class="point-content">
+        <div class="point-title">${p.t}</div>
+        <div class="point-desc">${p.d}</div>
+      </div>`;
+    list.appendChild(li);
+  });
+
+  // Show flip controls, hide rating
+  document.getElementById('controls').style.display = '';
+  document.getElementById('ratingControls').style.display = 'none';
+  updateDots();
+}
+
+function flipCard() {
+  const wrap = document.getElementById('cardWrap');
+  isFlipped = !isFlipped;
+  wrap.classList.toggle('flipped', isFlipped);
+
+  if (isFlipped) {
+    document.getElementById('controls').style.display = 'none';
+    document.getElementById('ratingControls').style.display = '';
+
+    if (!firstFlip) {
+      firstFlip = true;
+      unlockAchievement('first');
+    }
+  } else {
+    document.getElementById('controls').style.display = '';
+    document.getElementById('ratingControls').style.display = 'none';
+  }
+}
+
+// Bind card click
+document.getElementById('cardWrap').addEventListener('click', (e) => {
+  // Only flip on the card, not buttons
+  flipCard();
+});
+
+function markKnown() {
+  cardStatus[currentCard] = 'known';
+  totalKnown++;
+  streak++;
+  totalScore += 10 + Math.min(streak * 2, 20);
+  updateStats();
+  checkAchievements();
+  goNext();
+}
+
+function markAgain() {
+  cardStatus[currentCard] = 'again';
+  streak = 0;
+  updateStats();
+  goNext();
+}
+
+function goNext() {
+  updateDots();
+  if (currentCard < units[currentUnit].cards.length - 1) {
+    currentCard++;
+    renderCard();
+  } else {
+    showCompletion();
+  }
+  updateProgress();
+}
+
+function prevCard() {
+  if (currentCard > 0) {
+    currentCard--;
+    isFlipped = false;
+    document.getElementById('cardWrap').classList.remove('flipped');
+    document.getElementById('controls').style.display = '';
+    document.getElementById('ratingControls').style.display = 'none';
+    renderCard();
+    updateProgress();
+  }
+}
+
+function nextCard() {
+  if (currentCard < units[currentUnit].cards.length - 1) {
+    currentCard++;
+    isFlipped = false;
+    document.getElementById('cardWrap').classList.remove('flipped');
+    document.getElementById('controls').style.display = '';
+    document.getElementById('ratingControls').style.display = 'none';
+    renderCard();
+    updateProgress();
+  }
+}
+
+function updateProgress() {
+  const total = units[currentUnit].cards.length;
+  const done = cardStatus.filter(s => s !== 'unknown').length;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${done} / ${total} reviewed`;
+}
+
+function updateStats() {
+  document.getElementById('streakVal').textContent = streak;
+  document.getElementById('scoreVal').textContent = totalScore;
+  document.getElementById('totalKnown').textContent = totalKnown;
+}
+
+function showCompletion() {
+  document.getElementById('cardScene').style.display = 'none';
+  document.getElementById('controls').style.display = 'none';
+  document.getElementById('ratingControls').style.display = 'none';
+  document.getElementById('dotRow').style.display = 'none';
+
+  const known = cardStatus.filter(s => s === 'known').length;
+  const again = cardStatus.filter(s => s === 'again').length;
+  const earned = known * 10;
+
+  document.getElementById('cKnown').textContent = known;
+  document.getElementById('cAgain').textContent = again;
+  document.getElementById('cScore').textContent = earned;
+
+  const pct = Math.round((known / units[currentUnit].cards.length) * 100);
+  let icon = '🏆', title = 'Excellent!', msg = 'You crushed this unit!';
+  if (pct < 50) { icon = '📖'; title = 'Keep Practicing!'; msg = 'Review again to improve your score.'; }
+  else if (pct < 80) { icon = '👍'; title = 'Good Progress!'; msg = 'Almost there – a few more reviews and you\'ll nail it!'; }
+
+  document.getElementById('completionIcon').textContent = icon;
+  document.getElementById('completionTitle').textContent = title;
+  document.getElementById('completionMsg').textContent = `${pct}% mastery — ${msg}`;
+  document.getElementById('completion').classList.add('show');
+
+  unlockAchievement('unit1');
+}
+
+function resetDeck() {
+  loadUnit(currentUnit);
+}
+
+function nextUnit() {
+  if (currentUnit < units.length - 1) {
+    loadUnit(currentUnit + 1);
+  } else {
+    loadUnit(0);
+  }
+}
+
+// ── ACHIEVEMENTS ──────────────────────────────────────────────────
+function checkAchievements() {
+  if (streak >= 3) unlockAchievement('streak3');
+  if (streak >= 5) unlockAchievement('streak5');
+  if (totalKnown >= 10) unlockAchievement('known10');
+}
+
+let toastTimeout;
+function unlockAchievement(id) {
+  const ach = achievements.find(a => a.id === id);
+  if (!ach || ach.done) return;
+  ach.done = true;
+  showToast(ach.icon, ach.label, ach.msg);
+}
+
+function showToast(icon, title, msg) {
+  document.getElementById('toastIcon').textContent = icon;
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastMsg').textContent = msg;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
+  if (e.key === 'ArrowRight') nextCard();
+  if (e.key === 'ArrowLeft') prevCard();
+  if (e.key === 'k' || e.key === 'K') { if (isFlipped) markKnown(); }
+  if (e.key === 'a' || e.key === 'A') { if (isFlipped) markAgain(); }
+});
+
+init();
+</script>
+</body>
+</html>
